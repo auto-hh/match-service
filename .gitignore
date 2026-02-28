@@ -11,3 +11,5 @@ __pycache__/
 *.bin
 *.parquet
 artifacts/
+
+desktop.ini

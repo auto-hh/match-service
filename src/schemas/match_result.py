@@ -19,6 +19,9 @@ class VacancyMatch(Vacancy):
             salary=str(data.get("salary", "Не указано")),
             score=float(data.get("score", 0.0))
         )
+        
+    def __repr__(self):
+        return f"VacancyMatch(id={self.vacancy_id}, job_title='{self.job_title}', score={self.score:.4f}, salary='{self.salary}')"
 
 @dataclass
 class MatchResult:
@@ -34,10 +37,14 @@ class MatchResult:
         }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MatchResult":
+    def from_dict(cls, data: Dict[str, Any]):
         matches = [VacancyMatch.from_dict(m) for m in data.get("matches", [])]
         return cls(
             resume_id=int(data.get("resume_id", 0)),
             matches=matches,
             status=str(data.get("status", "success")),
         )
+        
+    def __repr__(self):
+        matches_str = ",\n  ".join(repr(m) for m in self.matches) if self.matches else "None"
+        return f"MatchResult(resume_id={self.resume_id}, status='{self.status}', matches=[\n  {matches_str}\n])"

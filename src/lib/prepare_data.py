@@ -34,7 +34,7 @@ def format_resume(r: dict) -> str:
         salary = "Не указано"
     
     return (
-        f"РЕЗЮМЕ: {r.get('job_title', 'Не указано')}. "
+        f"ВАКАНСИЯ: {r.get('job_title', 'Не указано')}. "
         f"ЗАРПЛАТА: {salary}. "
         f"ОПЫТ: {clean_text(r.get('exp_text', 'Не указано'))}. "
         f"ОБРАЗОВАНИЕ: {edu_info}. "
