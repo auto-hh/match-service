@@ -1,1 +1,3 @@
-# TODO: Экспортируем только class Matcher
+from .retriever import Retriever
+
+__all__ = ["Retriever"]
