@@ -1,1 +1,0 @@
-# TODO: Pydantic модели для Kafka

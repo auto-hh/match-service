@@ -1,5 +1,4 @@
-from .bi_encoder import BiEncoder, BiEncoderEmbeddings
-from .skill_attention_pooling import SkillAttentionPooling
+from .bi_encoder import BiEncoder
 from .cross_encoder import CrossEncoder
 
-__all__ = ["BiEncoder", "BiEncoderEmbeddings", "SkillAttentionPooling", "CrossEncoder"]
+__all__ = ["BiEncoder", "CrossEncoder"]

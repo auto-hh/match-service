@@ -1,7 +1,6 @@
 from sentence_transformers import SentenceTransformer, models
 from langchain_core.embeddings import Embeddings
 from .skill_attention_pooling import SkillAttentionPooling
-from typing import List
 from pathlib import Path
 import torch
 
@@ -55,23 +54,3 @@ class BiEncoder(SentenceTransformer):
             raise FileNotFoundError(f"Папка pooling не найдена: {pooling_path}")
         
         return model
-
-class BiEncoderEmbeddings(Embeddings):
-    def __init__(self, bi_encoder_model: BiEncoder):
-        self.model = bi_encoder_model
-
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        embeddings = self.model.encode(
-            texts, 
-            convert_to_numpy=True, 
-            show_progress_bar=False
-        )
-        return embeddings.tolist()
-
-    def embed_query(self, text: str) -> List[float]:
-        embedding = self.model.encode(
-            [text], 
-            convert_to_numpy=True, 
-            show_progress_bar=False
-        )
-        return embedding[0].tolist()

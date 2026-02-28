@@ -2,7 +2,7 @@ import pandas as pd
 from datasets import Dataset
 from .prepare_data import format_vacancy, format_resume, load_dataset
 
-def create_pairs(vacancies_path: str, resumes_path: str):
+def create_train_examples(vacancies_path: str, resumes_path: str):
     v_df = load_dataset(vacancies_path)
     r_df = load_dataset(resumes_path)
     
