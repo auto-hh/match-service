@@ -7,7 +7,7 @@ class Trainer:
         self,
         epochs: int = 5,
         batch_size: int = 32,
-        learning_rate: float = 2e-5,
+        learning_rate: float = 1e-5,
         warmup_steps: int = 100,
     ):
         self.epochs = epochs

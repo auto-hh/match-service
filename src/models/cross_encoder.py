@@ -3,8 +3,7 @@ from typing import List, Dict, Optional
 from sentence_transformers import CrossEncoder as CrEnc
 
 class CrossEncoder:
-    def __init__(self, model_name: str):
-        device='cuda' if torch.cuda.is_available() else 'cpu'
+    def __init__(self, model_name: str, device: str):
         print(f"🔄 Загрузка Cross-Encoder {model_name} на {device}")
         self.model = CrEnc(model_name, device=device)
         print("✅ Cross-Encoder готов!")

@@ -12,32 +12,43 @@ def clean_text(text: str) -> str:
     return text
 
 def format_vacancy(v: dict) -> str:
-    job_title = v.get('job_title') or v.get('target_role') or "Не указано"
+    job_title = v.get('job_title_vac') or v.get("job_title") or v.get('target_role') or "Не указано"
+    experience = v.get('experience') or "Не указано"
+    salary = v.get("salary") or "Не указано"
+    skills_vac = v.get("skills_vac") or "Не указано"
+    vacancy_text = clean_text(v.get("vacancy_text") or "Не указано")
     
     return (
         f"ВАКАНСИЯ: {job_title}. "
-        f"ОПЫТ: {v.get('experience', 'Не указано')}. "
-        f"ЗАРПЛАТА: {v.get("salary")}. "
-        f"НАВЫКИ: {v.get('skills_vac', 'Не указано')}. "
-        f"ОПИСАНИЕ: {clean_text(v.get('vacancy_text', 'Не указано'))}"
+        f"ЗАРПЛАТА: {salary}. "
+        f"ОПЫТ: {experience}. "
+        f"НАВЫКИ: {skills_vac}. "
+        f"ОПИСАНИЕ: {vacancy_text}"
     )
 
 def format_resume(r: dict) -> str:
-    if r.get('edu_uni') and r.get("edu_uni") != "Не указано":
-        edu_info = f"{r.get('edu_uni', 'Не указано')} (год выпуска: {r.get('edu_year', 'Не указано')})" if r.get('edu_uni') else "Не указано"
-    else:
-        edu_info = "Не указано"
-        
+    job_title = r.get("job_title_res") or r.get("job_title") or "Не указано"
+    
     if r.get("salary_val"):
         salary = f"{r.get("salary_val")} {r.get("salary_curr")}"
     else:
         salary = "Не указано"
     
+    exp_text = clean_text(r.get("exp_text") or "Не указано")
+    
+    if r.get('edu_uni') and r.get("edu_uni") != "Не указано":
+        edu_info = f"{r.get('edu_uni', 'Не указано')} (год выпуска: {r.get('edu_year', 'Не указано')})" if r.get('edu_uni') else "Не указано"
+    else:
+        edu_info = "Не указано"
+        
+    skills_res = r.get("skills_res") or "Не указано"
+    about_me = r.get('about_me') or "Не указано"
+    
     return (
-        f"ВАКАНСИЯ: {r.get('job_title', 'Не указано')}. "
+        f"ВАКАНСИЯ: {job_title}. "
         f"ЗАРПЛАТА: {salary}. "
-        f"ОПЫТ: {clean_text(r.get('exp_text', 'Не указано'))}. "
+        f"ОПЫТ: {exp_text}. "
         f"ОБРАЗОВАНИЕ: {edu_info}. "
-        f"НАВЫКИ: {r.get('skills_res', 'Не указано')}. "
-        f"О СЕБЕ: {clean_text(r.get('about_me', 'Не указано'))}"   
+        f"НАВЫКИ: {skills_res}. "
+        f"О СЕБЕ: {about_me}"   
     )

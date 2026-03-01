@@ -67,7 +67,7 @@ class Retriever:
     
     def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:        
         vacancies = [c.get("text") for c in candidates]
-                
+        
         if not vacancies:
             return []
         
@@ -76,4 +76,6 @@ class Retriever:
         for c, stats in zip(candidates, ce_scores):
             c["score"] = float(stats["score"])
         
+        candidates = [c for c in candidates if c["score"] >= self.min_score] 
+        # TODO: Проверить, что после реранкинга score не может быть отрицательным
         return sorted(candidates, key=lambda x: x["score"], reverse=True)

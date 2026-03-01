@@ -5,14 +5,14 @@ from pathlib import Path
 import torch
 
 class BiEncoder(SentenceTransformer):
-    def __init__(self, model_name: str, need_attention: bool = True):
+    def __init__(self, model_name: str, need_attention: bool):
         transformer = models.Transformer(model_name)
-        embedding_dim = transformer.get_word_embedding_dimension()
+        self.embedding_dim = transformer.get_word_embedding_dimension()
         
         if need_attention:
-            pooling = SkillAttentionPooling(word_embedding_dimension=embedding_dim)
+            pooling = SkillAttentionPooling(word_embedding_dimension=self.embedding_dim)
         else:
-            pooling = models.Pooling(embedding_dim, pooling_mode='mean')
+            pooling = models.Pooling(self.embedding_dim, pooling_mode='mean')
         
         transformer.name = "0_Transformer"
         pooling.name = "1_SkillAttentionPooling"
@@ -23,7 +23,7 @@ class BiEncoder(SentenceTransformer):
             param.requires_grad = False
 
     @classmethod
-    def load_trained(cls, path: str, model_name: str, need_attention: bool = True):     
+    def load_trained(cls, path: str, model_name: str, need_attention: bool = True):          
         from safetensors.torch import load_file as safetensors_load
         
         path = Path(path)        

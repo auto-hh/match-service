@@ -2,7 +2,7 @@ import pandas as pd
 from datasets import Dataset
 from .prepare_data import format_vacancy, format_resume, load_dataset
 
-def create_train_examples(vacancies_path: str, resumes_path: str):
+def create_train_examples(vacancies_path: str, resumes_path: str):   
     v_df = load_dataset(vacancies_path)
     r_df = load_dataset(resumes_path)
     
@@ -19,5 +19,9 @@ def create_train_examples(vacancies_path: str, resumes_path: str):
         
         data_dict["anchor"].append(r_text)
         data_dict["positive"].append(v_text)
+        
+    print("Пример данных:")
+    print(f"Resume: {data_dict["anchor"][0]}")
+    print(f"Vacancy: {data_dict["positive"][0]}")
     
     return Dataset.from_dict(data_dict)

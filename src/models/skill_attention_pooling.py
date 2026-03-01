@@ -33,24 +33,47 @@ class SkillAttentionPooling(nn.Module):
         }
         
     def save(self, path: str, **kwargs):
-        """Переопределяем save для корректного modules.json"""
         path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
         
-        # 1. Сохраняем базовую модель
-        super().save(path, **kwargs)
+        # 1. Сохраняем веса модели
+        torch.save(self.state_dict(), path / "pytorch_model.bin")
         
-        # 2. Исправляем modules.json с правильным типом
-        modules_path = path / "modules.json"
-        with open(modules_path, "r", encoding="utf-8") as f:
-            modules = json.load(f)
+        # 2. Сохраняем конфиг
+        config = self.get_config_dict()
+        with open(path / "config.json", "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2)
         
-        # Обновляем тип для кастомного pooling
-        for mod in modules:
-            if "SkillAttentionPooling" in mod.get("name", ""):
-                mod["type"] = "models.SkillAttentionPooling"
-        
-        with open(modules_path, "w", encoding="utf-8") as f:
-            json.dump(modules, f, indent=2)
+        # 3. Сохраняем modules.json (для SentenceTransformers)
+        modules_json = [
+            {
+                "idx": 0,
+                "name": "pooling",
+                "path": ".",
+                "type": "models.SkillAttentionPooling"
+            }
+        ]
+        with open(path / "modules.json", "w", encoding="utf-8") as f:
+            json.dump(modules_json, f, indent=2)
         
         print(f"✅ Модель сохранена в: {path}")
+        
+    @classmethod
+    def load(cls, path: str, **kwargs):
+        """Загружает модель из директории."""
+        path = Path(path)
+        
+        # 1. Загружаем конфиг
+        with open(path / "config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+        
+        # 2. Создаём модель
+        model = cls(word_embedding_dimension=config["word_embedding_dimension"])
+        
+        # 3. Загружаем веса
+        model.load_state_dict(
+            torch.load(path / "pytorch_model.bin", map_location="cpu", weights_only=True)
+        )
+        
+        print(f"✅ Модель загружена из: {path}")
+        return model

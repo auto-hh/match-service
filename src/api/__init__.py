@@ -1,1 +1,3 @@
-# TODO: только MatcherServicer
+from .worker import MatchingWorker
+
+__all__ = ["MatchingWorker"]

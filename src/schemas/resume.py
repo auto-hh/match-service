@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from lib import format_resume
 
 @dataclass
@@ -18,7 +18,7 @@ class Resume:
     edu_year: str = ""
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Resume":
+    def from_dict(cls, data: Dict[str, Any]):
         return cls(
             resume_id=int(data.get("resume_id", data.get("vacancy_id", 0))),
             grade=str(data.get("grade", "Не указано")),
