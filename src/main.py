@@ -12,6 +12,12 @@ def main():
     parser.add_argument("--cross-encoder", required=True, help="CrossEncoder модель")
     parser.add_argument("--model-path", default=None, help="Путь к своей модели")
     parser.add_argument("--faiss-path", required=True, help="Путь к FAISS индексу")
+
+    parser.add_argument("--llm-mode", default=None, choices=["api", "ollama", "none"],
+                        help="Режим LLM (api=Groq, ollama=локально, none=отключить)")
+    parser.add_argument("--llm-api-key", default=None, help="API ключ для LLM")
+    parser.add_argument("--llm-base-url", default=None, help="URL для LLM API")
+    parser.add_argument("--llm-model", default=None, help="Название модели LLM")
     
     args = parser.parse_args()
     
@@ -21,8 +27,12 @@ def main():
     kafka_bootstrap = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")
     input_topic = os.getenv("INPUT_TOPIC", "resume_in")
     output_topic = os.getenv("OUTPUT_TOPIC", "resume_out")
+    llm_mode = args.llm_mode if args.llm_mode != "none" else None
+    llm_api_key = args.llm_api_key or os.getenv("GROQ_API_KEY")
+    llm_base_url = args.llm_base_url or os.getenv("LLM_BASE_URL")
+    llm_model = args.llm_model or os.getenv("LLM_MODEL")
     
-    print("🚀 Инициализация приложения...")
+    print("Инициализация приложения...")
     app = App(
         bi_encoder_name=args.bi_encoder_name,
         cross_encoder_model=args.cross_encoder,
@@ -31,16 +41,20 @@ def main():
         retrieval_top_k=retrieval_top_k,
         final_top_k=final_top_k,
         min_score=min_score,
+        llm_mode=llm_mode,
+        llm_api_key=llm_api_key,
+        llm_base_url=llm_base_url,
+        llm_model=llm_model
     )
     
     stats = app.get_stats()
-    print(f"✅ BiEncoder: {stats['bi_encoder']}")
-    print(f"✅ Модель: {stats['model_type']}")
-    print(f"✅ Вакансий: {stats['total_vacancies']}")
-    print(f"✅ Device: {stats['device']}")
+    print(f"BiEncoder: {stats['bi_encoder']}")
+    print(f"Модель: {stats['model_type']}")
+    print(f"Вакансий: {stats['total_vacancies']}")
+    print(f"Device: {stats['device']}")
     
     if app.matcher is None:
-        print("⚠️ Matcher не загружен (нет FAISS)")
+        print("Matcher не загружен (нет FAISS)")
         return
     
     worker = MatchingWorker(
