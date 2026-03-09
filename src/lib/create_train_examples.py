@@ -2,11 +2,15 @@ import pandas as pd
 from datasets import Dataset
 from .prepare_data import format_vacancy, format_resume, load_dataset
 
-def create_train_examples(vacancies_path: str, resumes_path: str):   
+def create_train_examples(vacancies_path: str, resumes_path: str,
+                          max_examples: int = None):
     v_df = load_dataset(vacancies_path)
     r_df = load_dataset(resumes_path)
     
     df = pd.merge(r_df, v_df, left_on='vacancy_id', right_on='id', suffixes=('_res', '_vac'))
+
+    if max_examples:
+        df = df.head(max_examples)
     
     data_dict = {
         "anchor": [],

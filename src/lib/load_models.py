@@ -1,12 +1,14 @@
+import os
 import torch
 from models import BiEncoder, CrossEncoder
 from typing import Optional
 
 def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None) -> BiEncoder:
     need_attention = model_path is not None
+    use_lora = model_path is not None and os.path.exists(f'{model_path}/adapter')
     if model_path:
         print(f"📥 Загрузка модели из: {model_path}")
-        model = BiEncoder.load_trained(model_path, bi_encoder_name, need_attention=need_attention)
+        model = BiEncoder.load_trained(model_path, bi_encoder_name, need_attention=need_attention, use_lora=use_lora)
     else:
         print(f"📥 Загрузка готовой модели: {bi_encoder_name}")
         model = BiEncoder.load_from_pretrained(bi_encoder_name, need_attention=need_attention)
