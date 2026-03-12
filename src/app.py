@@ -1,5 +1,6 @@
 from core import Matcher, Retriever, LetterGenerator, LLMMode
 from lib import load_vector_store, load_bi_encoder, load_cross_encoder
+from typing import Optional
 
 class App:    
     def __init__(
@@ -9,7 +10,7 @@ class App:
         faiss_path: str,
         retrieval_top_k: int,
         final_top_k: int,
-        model_path: str = None,
+        model_path: Optional[str] = None,
         min_score: float = 0.0,
         llm_mode: LLMMode = "api",
         llm_api_key: str = None,

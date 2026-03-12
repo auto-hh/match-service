@@ -30,7 +30,7 @@ def format_resume(r: dict) -> str:
     job_title = r.get("job_title_res") or r.get("job_title") or "Не указано"
     
     if r.get("salary_val"):
-        salary = f"{r.get("salary_val")} {r.get("salary_curr")}"
+        salary = f"{r.get('salary_val')} {r.get('salary_curr')}"
     else:
         salary = "Не указано"
     

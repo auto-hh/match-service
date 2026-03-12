@@ -38,16 +38,22 @@ class LetterGenerator:
         from openai import OpenAI
 
         self.mode = mode or self._detect_mode(api_key, base_url)
-        self.api_key = api_key or os.getenv("GROQ_API_KEY", "ollama")
-        self.base_url = base_url or os.getenv(
-            "LLM_BASE_URL",
-            "https://api.groq.com/openai/v1" if self.mode == LLMMode.API else "http://localhost:11434/v1"
+        self.api_key = api_key or os.getenv("GROQ_API_KEY") or "ollama"
+        self.base_url = (
+            base_url or 
+            os.getenv("LLM_BASE_URL") or 
+            ("https://api.groq.com/openai/v1" if self.mode == LLMMode.API else "http://localhost:11434/v1")
         )
-        self.model = model or os.getenv(
-            "LLM_MODEL",
-            "llama-3.3-70b-versatile" if self.mode == LLMMode.API else "llama3.1:8b"
+        self.model = (
+            model or 
+            os.getenv("LLM_MODEL") or 
+            ("llama-3.3-70b-versatile" if self.mode == LLMMode.API else "llama3.1:8b")
         )
-
+        
+        print(f"llm: {self.model}")
+        print(f"api_url: {self.base_url}")
+        print(f"api_key: {self.api_key}")
+    
         self._client = OpenAI(
             api_key=self.api_key,
             base_url=self.base_url
@@ -59,8 +65,10 @@ class LetterGenerator:
         url = base_url or os.getenv("LLM_BASE_URL")
 
         if key and (not url or "localhost" not in url):
+            print('groq')
             return LLMMode.API
         else:
+            print('ollama')
             return LLMMode.OLLAMA
 
     def generate(
@@ -91,6 +99,8 @@ class LetterGenerator:
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
+            
+            print(response)
 
             letter = response.choices[0].message.content.strip()
 

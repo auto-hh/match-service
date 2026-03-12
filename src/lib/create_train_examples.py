@@ -25,7 +25,7 @@ def create_train_examples(vacancies_path: str, resumes_path: str,
         data_dict["positive"].append(v_text)
         
     print("Пример данных:")
-    print(f"Resume: {data_dict["anchor"][0]}")
-    print(f"Vacancy: {data_dict["positive"][0]}")
+    print(f"Resume: {data_dict['anchor'][0]}")
+    print(f"Vacancy: {data_dict['positive'][0]}")
     
     return Dataset.from_dict(data_dict)

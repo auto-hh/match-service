@@ -20,7 +20,7 @@ class MatchingWorker:
             value_deserializer=lambda m: json.loads(m.decode('utf-8')),
             auto_offset_reset='latest',
             enable_auto_commit=True,
-            consumer_timeout_ms=1000,
+            consumer_timeout_ms=float('inf'),
         )
         
         self.producer = KafkaProducer(
@@ -44,6 +44,14 @@ class MatchingWorker:
         
         try:
             for kafka_message in self.consumer:
+                print("\n" + "="*50)
+                print(f"📩 RAW Kafka Message:")
+                print(f"   Topic: {kafka_message.topic}")
+                print(f"   Partition: {kafka_message.partition}")
+                print(f"   Offset: {kafka_message.offset}")
+                print(f"   Key: {kafka_message.key}")
+                print(f"   Value: {kafka_message.value}")
+                print("="*50)
                 try:
                     message = kafka_message.value
                     resume_id = message.get("resume_id", 0)
