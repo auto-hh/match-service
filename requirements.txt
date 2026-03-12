@@ -1,0 +1,11 @@
+datasets==4.6.0
+faiss-cpu==1.13.2
+kafka_python==2.3.0
+numpy==1.26.4
+openai==2.26.0
+pandas==2.2.3
+peft==0.18.1
+python-dotenv==1.2.2
+safetensors==0.7.0
+sentence_transformers==5.2.2
+transformers==5.2.0
