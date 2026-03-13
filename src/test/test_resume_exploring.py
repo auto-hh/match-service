@@ -64,7 +64,6 @@ for message in consumer:
         for i, (word, score) in enumerate(sorted_words, 1):
             print(f"   {i}. {word}: {score:.4f}")
     
-    print(f"\n⏱️  Время обработки: {result.get('processing_time_ms', 0):.2f}ms")
     break
 
 consumer.close()

@@ -10,9 +10,7 @@ class Explorer:
         try:            
             text = format_resume(resume.to_dict())           
             word_weights = self.bi_encoder.get_weights(text)
-            
-            print(f"word_weights: {word_weights}")
-                        
+                                    
             return ExplorationResult(
                 resume_id=resume.resume_id,
                 word_weights=word_weights,

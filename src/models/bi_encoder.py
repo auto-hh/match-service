@@ -76,7 +76,9 @@ class BiEncoder(SentenceTransformer):
         
         return model
 
-    def get_weights(self, text: str, steps: int = 50) -> Dict[str, float]:        
+    def get_weights(self, text: str, steps: int = 50) -> Dict[str, float]:
+        from lib import merge_tokens_to_words
+        
         self.eval()
         tokenizer = AutoTokenizer.from_pretrained(self[0].auto_model.name_or_path)
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
@@ -111,33 +113,10 @@ class BiEncoder(SentenceTransformer):
         ig_scores = (input_embeddings - baseline) * avg_grads
         
         weights = np.abs(ig_scores.sum(dim=-1).squeeze(0).cpu().numpy())
-        tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])            
-        special = set(tokenizer.all_special_tokens) | {'[CLS]', '[SEP]', '[PAD]', '<s>', '</s>', '<pad>'}
+        tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])     
         
-        word_weights = {}
-        current_word_parts = []
-        current_weight_parts = []
-
-        for token, weight in zip(tokens, weights):
-            if token in special:
-                continue
-
-            if token.startswith('▁'):
-                if current_word_parts:
-                    word = ''.join(current_word_parts)
-                    avg_weight = float(np.mean(current_weight_parts))
-                    word_weights[word] = avg_weight
-                current_word_parts = [token[1:]]
-                current_weight_parts = [weight]
-            else:
-                current_word_parts.append(token)
-                current_weight_parts.append(weight)
-            
-        if current_word_parts:
-            word = ''.join(current_word_parts)
-            avg_weight = float(np.mean(current_weight_parts))
-            word_weights[word] = avg_weight        
-
+        word_weights = merge_tokens_to_words(tokens, weights, tokenizer_type="auto")
+        
         if word_weights:
             keys = list(word_weights.keys())
             vals = np.array([word_weights[k] for k in keys])
