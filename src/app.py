@@ -1,4 +1,4 @@
-from core import Matcher, Retriever, LetterGenerator, LLMMode
+from core import Matcher, Retriever, LetterGenerator, LLMMode, Explorer
 from lib import load_vector_store, load_bi_encoder, load_cross_encoder
 from typing import Optional
 
@@ -47,6 +47,9 @@ class App:
         else:
             self.letter_generator = None
         
+        self.explorer = Explorer(
+            bi_encoder=self.bi_encoder
+        )
         self.matcher = Matcher(retriever=self.retriever, generate_letters=generate_letters, letter_generator=self.letter_generator)
         
     def get_stats(self) -> dict:

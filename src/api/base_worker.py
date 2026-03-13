@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from kafka import KafkaConsumer, KafkaProducer
 import json
+import os
 from typing import Any
 
 class BaseWorker(ABC):    
@@ -15,9 +16,10 @@ class BaseWorker(ABC):
         
         self.consumer = KafkaConsumer(
             self.input_topic,
+            group_id=f"{self.get_worker_name()}-{os.getpid()}",
             bootstrap_servers=[kafka_bootstrap],
             value_deserializer=lambda v: json.loads(v.decode('utf-8')),
-            auto_offset_reset='earliest',
+            auto_offset_reset='latest',
             consumer_timeout_ms=float('inf'),
         )
         
