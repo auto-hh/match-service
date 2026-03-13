@@ -1,3 +1,3 @@
-from .worker import MatchingWorker
+from .matching_worker import MatchingWorker
 
 __all__ = ["MatchingWorker"]
