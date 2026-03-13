@@ -1,14 +1,15 @@
 from sentence_transformers import SentenceTransformer, models
 from pathlib import Path
 import torch
-from typing import Optional, Dict, Any
+from schemas import Token
+from typing import Optional, Dict, Any, List
 from safetensors.torch import load_file as safetensors_load
 from peft import LoraConfig, get_peft_model, TaskType
 from transformers import AutoTokenizer
 import numpy as np
 
 class BiEncoder(SentenceTransformer):
-    def __init__(self, model_name: str, use_lora: bool = False, lora_config: Optional[Dict[str, Any]] = None, temperature: float = 0.1):
+    def __init__(self, model_name: str, use_lora: bool = False, lora_config: Optional[Dict[str, Any]] = None, temperature: float = 0.1):        
         transformer = models.Transformer(model_name)
         self.embedding_dim = transformer.get_word_embedding_dimension()
         self.temperature = temperature
@@ -116,20 +117,42 @@ class BiEncoder(SentenceTransformer):
         weights = np.abs(ig_scores.sum(dim=-1).squeeze(0).cpu().numpy())
         tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])     
         
-        word_weights = merge_tokens_to_words(tokens, weights, tokenizer_type="auto")
-        
-        if word_weights:
-            keys = list(word_weights.keys())
-            vals = np.array([word_weights[k] for k in keys])
-            vals = (vals - vals.max()) / self.temperature
-            probs = np.exp(vals) / np.sum(np.exp(vals))
-            
-            max_prob = probs.max()
-            if max_prob > 0:
-                normalized = probs / max_prob
-            else:
-                normalized = probs
-            
-            word_weights = {k: float(v) for k, v in zip(keys, normalized)}
+        result_tokens = merge_tokens_to_words(tokens, weights, tokenizer_type="auto")
+                
+        self._apply_softmax_to_words(result_tokens)        
+        self._normalize_to_max(result_tokens)
 
-        return word_weights
+        return result_tokens
+
+    def _apply_softmax_to_words(self, tokens: List[Token]):
+        """Применяет softmax только к смысловым токенам"""
+        word_tokens = [t for t in tokens if t.is_word]
+        if not word_tokens:
+            return
+        
+        weights = np.array([t.weight for t in word_tokens])
+        exp_vals = np.exp((weights - weights.max()) / self.temperature)
+        softmax_probs = exp_vals / np.sum(exp_vals)
+        
+        # Нормализация к максимуму
+        max_prob = softmax_probs.max()
+        if max_prob > 0:
+            softmax_probs = softmax_probs / max_prob
+        
+        # Обновляем веса
+        for token, new_weight in zip(word_tokens, softmax_probs):
+            token.weight = float(new_weight)
+
+
+    def _normalize_to_max(self, tokens: List[Token]):
+        """Финальная нормализация: макс = 1.0"""
+        word_weights = [t.weight for t in tokens if t.is_word]
+        if not word_weights:
+            return
+        
+        max_weight = max(word_weights)
+        for token in tokens:
+            if token.is_word and max_weight > 0:
+                token.weight = token.weight / max_weight
+            else:
+                token.weight = 0.0

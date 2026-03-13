@@ -2,6 +2,7 @@ from typing import List, Optional
 from core import Retriever
 from .letter_generator import LetterGenerator
 from schemas import Resume, VacancyMatch, MatchResult
+from lib import format_resume
 
 class Matcher:
     def __init__(self, retriever: Retriever, generate_letters: bool = False, letter_generator: Optional[LetterGenerator] = None):
@@ -10,7 +11,7 @@ class Matcher:
         self.generate_letters = generate_letters
     
     def match(self, resume: Resume, final_top_k: int = 5) -> MatchResult:
-        search_text = resume.to_search_text()
+        search_text = format_resume(resume.to_dict())
         
         if not search_text or not search_text.strip():
             return MatchResult(

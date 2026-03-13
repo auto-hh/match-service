@@ -1,6 +1,5 @@
 from dataclasses import dataclass, asdict
 from typing import Dict, Any
-from lib import format_resume
 
 @dataclass
 class Resume:  
@@ -33,9 +32,6 @@ class Resume:
             edu_uni=str(data.get("edu_uni", "Не указано")),
             edu_year=int(data["edu_year"]) if data.get("edu_year") else None,
         )
-    
-    def to_search_text(self) -> str:
-        return format_resume(self.to_dict())
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

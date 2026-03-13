@@ -1,6 +1,5 @@
 from dataclasses import dataclass, asdict
 from typing import Dict, Any
-from lib import format_vacancy
 
 @dataclass
 class Vacancy:    
@@ -25,9 +24,6 @@ class Vacancy:
             vacancy_text=str(data.get("vacancy_text", "Не указано")),
             salary=str(data.get("salary", "Не указано")),
         )
-    
-    def to_search_text(self) -> str:
-        return format_vacancy(self.to_dict())
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

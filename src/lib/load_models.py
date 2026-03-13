@@ -1,9 +1,9 @@
 import os
 import torch
-from models import BiEncoder, CrossEncoder
 from typing import Optional
 
-def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None, temperature: float = 0.1) -> BiEncoder:
+def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None, temperature: float = 0.1):
+    from models import BiEncoder
     use_lora = model_path is not None and os.path.exists(f'{model_path}/adapter')
     path = model_path or "fake-path"
     
@@ -21,6 +21,7 @@ def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None, temp
     return model
 
 
-def load_cross_encoder(model_name: str) -> CrossEncoder:
+def load_cross_encoder(model_name: str):
+    from models import CrossEncoder
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     return CrossEncoder(model_name, device)
