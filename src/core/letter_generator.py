@@ -1,22 +1,11 @@
 import os
 from typing import Optional
-from dataclasses import dataclass
 from enum import Enum
-
+from schemas import CoverLetterResult
 
 class LLMMode(Enum):
     API = "api"
     OLLAMA = "ollama"
-
-
-@dataclass
-class CoverLetterResult:
-    vacancy_id: int
-    job_title: str
-    letter: str
-    status: str = "success"
-    mode: str = "api"
-
 
 class LetterGenerator:
     def __init__(
