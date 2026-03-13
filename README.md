@@ -48,22 +48,14 @@ python ./src/main.py
 
 # 🧪 Тестирование Kafka
 
-1. Просмотр сообщений в топиках
-
-а. Отправленное сообщение
+1. Тест matching воркера:
 
 ```bash
-python ./src/test/listen_consumer.py
+python ./src/test/test_resume_matching.py
 ```
 
-б. Полученное сообщение
+2. Тест exploration воркера:
 
 ```bash
-python ./src/test/listen_producer.py
-```
-
-2. Отправка тестового резюме
-
-```bash
-python ./src/test/send_message.py
+python ./src/test/test_resume_exploring.py
 ```
