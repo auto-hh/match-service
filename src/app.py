@@ -16,6 +16,7 @@ class App:
         llm_api_key: str = None,
         llm_base_url: str = None,
         llm_model: str = None,
+        generate_letters: bool = False
     ):
         self.bi_encoder_name = bi_encoder_name
         self.model_path = model_path
@@ -46,7 +47,7 @@ class App:
         else:
             self.letter_generator = None
         
-        self.matcher = Matcher(retriever=self.retriever, letter_generator=self.letter_generator)
+        self.matcher = Matcher(retriever=self.retriever, generate_letters=generate_letters, letter_generator=self.letter_generator)
         
     def get_stats(self) -> dict:
         return {

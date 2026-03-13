@@ -32,6 +32,8 @@ def main():
     llm_api_key = os.getenv("LLM_API_KEY") or os.getenv("GROQ_API_KEY")
     llm_base_url = os.getenv("LLM_BASE_URL")
     llm_model = os.getenv("LLM_MODEL")
+    
+    generate_letters = bool(True if os.getenv("GENERATE_LETTERS") == "True" else False)
 
     print("Инициализация приложения...")
     app = App(
@@ -45,7 +47,8 @@ def main():
         llm_mode=llm_mode,
         llm_api_key=llm_api_key,
         llm_base_url=llm_base_url,
-        llm_model=llm_model
+        llm_model=llm_model,
+        generate_letters=generate_letters,
     )
     
     stats = app.get_stats()

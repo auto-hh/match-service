@@ -37,7 +37,7 @@ class LetterGenerator:
         """
         from openai import OpenAI
 
-        self.mode = mode or self._detect_mode(api_key, base_url)
+        self.mode = self._detect_mode(api_key, base_url, mode)
         self.api_key = api_key or os.getenv("GROQ_API_KEY") or "ollama"
         self.base_url = (
             base_url or 
@@ -50,6 +50,7 @@ class LetterGenerator:
             ("llama-3.3-70b-versatile" if self.mode == LLMMode.API else "llama3.1:8b")
         )
         
+        print(f"mode: {self.mode}")
         print(f"llm: {self.model}")
         print(f"api_url: {self.base_url}")
         print(f"api_key: {self.api_key}")
@@ -59,16 +60,20 @@ class LetterGenerator:
             base_url=self.base_url
         )
 
-    def _detect_mode(self, api_key: Optional[str], base_url: Optional[str]) -> LLMMode:
+    def _detect_mode(self, api_key: Optional[str], base_url: Optional[str], mode: Optional[str]) -> LLMMode:
         """Автоматически определяет доступный режим"""
         key = api_key or os.getenv("GROQ_API_KEY")
         url = base_url or os.getenv("LLM_BASE_URL")
 
+        if mode:
+            if mode == 'api':
+                return LLMMode.API
+            elif mode == 'ollama':
+                return LLMMode.OLLAMA
+
         if key and (not url or "localhost" not in url):
-            print('groq')
             return LLMMode.API
         else:
-            print('ollama')
             return LLMMode.OLLAMA
 
     def generate(
@@ -100,8 +105,6 @@ class LetterGenerator:
                 max_tokens=max_tokens,
             )
             
-            print(response)
-
             letter = response.choices[0].message.content.strip()
 
             return CoverLetterResult(
