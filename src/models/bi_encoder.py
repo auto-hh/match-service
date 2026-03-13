@@ -8,9 +8,10 @@ from transformers import AutoTokenizer
 import numpy as np
 
 class BiEncoder(SentenceTransformer):
-    def __init__(self, model_name: str, use_lora: bool = False, lora_config: Optional[Dict[str, Any]] = None):
+    def __init__(self, model_name: str, use_lora: bool = False, lora_config: Optional[Dict[str, Any]] = None, temperature: float = 0.1):
         transformer = models.Transformer(model_name)
         self.embedding_dim = transformer.get_word_embedding_dimension()
+        self.temperature = temperature
 
         pooling = models.Pooling(self.embedding_dim, pooling_mode='mean')
 
@@ -48,9 +49,9 @@ class BiEncoder(SentenceTransformer):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     @classmethod
-    def load_trained(cls, path: str, model_name: str, use_lora: bool = False):        
+    def load_trained(cls, path: str, model_name: str, use_lora: bool = False, temperature: float = 0.1):        
         path = Path(path)
-        model = cls(model_name=model_name, use_lora=False)
+        model = cls(model_name=model_name, use_lora=False, temperature=temperature)
 
         root_weights_file = path / "model.safetensors"
         if root_weights_file.exists():
@@ -120,8 +121,15 @@ class BiEncoder(SentenceTransformer):
         if word_weights:
             keys = list(word_weights.keys())
             vals = np.array([word_weights[k] for k in keys])
-            vals = vals - vals.max()
+            vals = (vals - vals.max()) / self.temperature
             probs = np.exp(vals) / np.sum(np.exp(vals))
-            word_weights = {k: float(p) for k, p in zip(keys, probs)}
+            
+            max_prob = probs.max()
+            if max_prob > 0:
+                normalized = probs / max_prob
+            else:
+                normalized = probs
+            
+            word_weights = {k: float(v) for k, v in zip(keys, normalized)}
 
         return word_weights

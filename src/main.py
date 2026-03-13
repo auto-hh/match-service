@@ -10,7 +10,9 @@ def main():
     bi_encoder_name = os.getenv("BI_ENCODER_NAME")
     if not bi_encoder_name:
         raise ValueError("BI_ENCODER_NAME не задан")
-
+    
+    bi_encoder_temperature = float(os.getenv("BI_ENCODER_TEMPERATURE") or "0.1")
+    
     cross_encoder = os.getenv("CROSS_ENCODER")
     if not cross_encoder:
         raise ValueError("CROSS_ENCODER не задан")
@@ -41,6 +43,7 @@ def main():
     print("Инициализация приложения...")
     app = App(
         bi_encoder_name=bi_encoder_name,
+        bi_encoder_temperature=bi_encoder_temperature,
         cross_encoder_model=cross_encoder,
         faiss_path=faiss_path,
         model_path=model_path,

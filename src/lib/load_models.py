@@ -3,15 +3,17 @@ import torch
 from models import BiEncoder, CrossEncoder
 from typing import Optional
 
-def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None) -> BiEncoder:
+def load_bi_encoder(bi_encoder_name: str, model_path: Optional[str] = None, temperature: float = 0.1) -> BiEncoder:
     use_lora = model_path is not None and os.path.exists(f'{model_path}/adapter')
+    path = model_path or "fake-path"
+    
     if model_path:
         print(f"📥 Загрузка модели из: {model_path}")
-        model = BiEncoder.load_trained(model_path, bi_encoder_name, use_lora=use_lora)
     else:
         print(f"📥 Загрузка готовой модели: {bi_encoder_name}")
-        model = BiEncoder.load_trained("fake-path", bi_encoder_name, use_lora=use_lora)
     
+    model = BiEncoder.load_trained(path, bi_encoder_name, use_lora=use_lora, temperature=temperature)
+        
     model.eval()
     if torch.cuda.is_available():
         model = model.to('cuda')
