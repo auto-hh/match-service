@@ -26,4 +26,5 @@ class MatchingWorker(BaseWorker):
     def process_message(self, message: dict[str, Any]) -> MatchResult:
         resume = Resume.from_dict(message)
         result = self.matcher.match(resume)
+        print(result)
         return result
