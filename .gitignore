@@ -14,5 +14,3 @@ artifacts/
 faiss_index
 
 desktop.ini
-
-kafka.env
