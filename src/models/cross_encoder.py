@@ -1,4 +1,3 @@
-import torch
 from typing import List, Dict, Optional
 from sentence_transformers import CrossEncoder as CrEnc
 

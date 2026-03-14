@@ -8,9 +8,9 @@ venv/
 .venv/
 pip-log.txt
 pip-delete-this-directory.txt
-.git
+.git/
 .gitignore
-README.md
+*.md
 .env
 *.log
 .DS_Store
@@ -18,3 +18,4 @@ data/
 models/
 *.faiss
 notebooks
+tests/

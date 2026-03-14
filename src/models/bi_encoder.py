@@ -52,7 +52,7 @@ class BiEncoder(SentenceTransformer):
     @classmethod
     def load_trained(cls, path: str, model_name: str, use_lora: bool = False, temperature: float = 0.1):        
         path = Path(path)
-        model = cls(model_name=model_name, use_lora=False, temperature=temperature)
+        model = cls(model_name=model_name, use_lora=use_lora, temperature=temperature)
 
         root_weights_file = path / "model.safetensors"
         if root_weights_file.exists():
