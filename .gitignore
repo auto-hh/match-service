@@ -1,1 +1,16 @@
+# Python
+venv
+__pycache__/
+*.py[cod]
 .env
+# Jupyter
+.ipynb_checkpoints/
+# Data & Models
+*.csv
+*.pt
+*.bin
+*.parquet
+artifacts/
+faiss_index
+
+desktop.ini
