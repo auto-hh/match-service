@@ -64,7 +64,7 @@ class BiEncoder(SentenceTransformer):
                 transformer_weights[new_key] = v
             
             model[0].auto_model.load_state_dict(transformer_weights, strict=False)
-        elif use_lora:
+        elif not use_lora:
             raise FileNotFoundError(f"Не найдены веса модели: {root_weights_file}")
 
         if use_lora:
