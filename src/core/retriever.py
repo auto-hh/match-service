@@ -1,5 +1,6 @@
 from typing import List, Dict
 from models import BiEncoder, CrossEncoder
+from lib import bm25_search
 
 class Retriever:
     def __init__(
@@ -41,7 +42,7 @@ class Retriever:
         
         return final_results
     
-    def _search(self, query: str) -> List[Dict]:        
+    def _search(self, query: str) -> Dict[int, Dict]:
         query_emb = self.bi_encoder.encode(
             [query],
             convert_to_numpy=True,
@@ -50,7 +51,7 @@ class Retriever:
         
         distances, indices = self.index.search(query_emb, self.retrieval_top_k)
         
-        candidates = []
+        candidates = {}
         for idx, dist in zip(indices[0], distances[0]):
             if dist < self.min_score:
                 continue
@@ -59,7 +60,7 @@ class Retriever:
             meta = self.vacancy_meta[idx] if self.vacancy_meta else {}
             text = self.vacancy_texts[idx] if self.vacancy_texts is not None else ""
             
-            candidates.append({
+            candidates[int(idx)] = {
                 "idx": int(idx),
                 "vacancy_id": vac_id,
                 "score": float(dist),
@@ -68,7 +69,7 @@ class Retriever:
                 "grade": meta.get("grade", ""),
                 "title": meta.get("title", ""),
                 "company": meta.get("company", ""),
-            })
+            }
                 
         return candidates
 
