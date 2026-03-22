@@ -2,7 +2,8 @@ import faiss
 import json
 import numpy as np
 from pathlib import Path
-from lib import load_dataset, format_vacancy, create_bm25_index, save_bm25_index
+from lib import load_dataset, format_vacancy
+from .bm25_index import create_bm25_index, save_bm25_index
 
 
 def create_vector_store(model, input_path: str, output_path: str):

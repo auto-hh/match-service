@@ -2,7 +2,7 @@ import faiss
 import json
 import numpy as np
 from pathlib import Path
-from lib import load_bm25_index
+from .bm25_index import load_bm25_index
 
 def load_vector_store(index_path: str, model):
     print("📥 Загрузка FAISS индекса...")
