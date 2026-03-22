@@ -21,6 +21,7 @@ class App:
     ):
         self.bi_encoder_name = bi_encoder_name
         self.model_path = model_path
+        self.bm25_index_path = bm25_index_path
         
         self.bi_encoder = load_bi_encoder(
             model_path=model_path,

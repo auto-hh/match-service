@@ -2,7 +2,7 @@ import faiss
 import json
 import numpy as np
 from pathlib import Path
-from lib import load_dataset, format_vacancy
+from lib import load_dataset, format_vacancy, create_bm25_index, save_bm25_index
 
 
 def create_vector_store(model, input_path: str, output_path: str):
@@ -44,4 +44,10 @@ def create_vector_store(model, input_path: str, output_path: str):
     print(f"✅ Тексты сохранены: {len(texts)}")
     
     print(f"✅ Сохранено в: {output_path}")
+
+    print("🔢 Создание BM25 индекса...")
+    bm25 = create_bm25_index(texts)
+    save_bm25_index(bm25, f"{output_path}/bm25_index.pkl")
+    print("✅ BM25 индекс сохранён")
+
     return index

@@ -10,6 +10,7 @@ class Retriever:
         retrieval_top_k: int = 100,
         final_top_k: int = 10,
         min_score: float = 0.0,
+        bm25_weight: float = 0.3,
     ):
         self.bi_encoder = bi_encoder
         self.cross_encoder = cross_encoder
@@ -22,14 +23,20 @@ class Retriever:
         self.vacancy_ids = store["vacancy_ids"]
         self.vacancy_meta = store.get("vacancy_meta")
         self.vacancy_texts = store.get("vacancy_texts")
+
+        self.bm25 = store.get("bm25")
+        self.bm25_weight = bm25_weight
     
     def search(self, query: str) -> List[Dict]:
         bi_results = self._search(query)
+        bm25_results = self._bm25_search(query)
+
+        hybrid_results = self._combine_results(bi_results, bm25_results)
         
-        if not bi_results:
+        if not hybrid_results:
             return []
                 
-        ce_results = self._rerank(query, bi_results)        
+        ce_results = self._rerank(query, hybrid_results)
         final_results = ce_results[:self.final_top_k]
         
         return final_results
@@ -64,6 +71,48 @@ class Retriever:
             })
                 
         return candidates
+
+    def _bm25_search(self, query: str) -> List[Dict]:
+        bm25_results = bm25_search(self.bm25, query, top_k=self.retrieval_top_k)
+
+        results = {}
+        for idx, score in bm25_results:
+            if score > 0:
+                results[idx] = {
+                    "idx": idx,
+                    "vacancy_id": int(self.vacancy_ids[idx]),
+                    "score": score,
+                    "dense_score": 0.0,
+                    "bm25_score": float(score),
+                }
+        return results
+
+    def _combine_results(self, dense: Dict, bm25: Dict) -> List[Dict]:
+        all_indices = set(dense.keys()) | set(bm25.keys())
+
+        combined = []
+        for idx in all_indices:
+            d_score = dense.get(idx, {}).get("dense_score", 0.0)
+            b_score = bm25.get(idx, {}).get("bm25_score", 0.0)
+
+            hybrid_score = (1 - self.bm25_weight) * d_score + self.bm25_weight * b_score
+
+            if hybrid_score >= self.min_score:
+                combined.append({
+                    "idx": idx,
+                    "vacancy_id": int(self.vacancy_ids[idx]),
+                    "score": hybrid_score,
+                    "dense_score": d_score,
+                    "bm25_score": b_score,
+                    "text": self.vacancy_texts[idx] if self.vacancy_texts else "",
+                    "target_role": self.vacancy_meta[idx].get("target_role", "") if self.vacancy_meta else "",
+                    "grade": self.vacancy_meta[idx].get("grade", "") if self.vacancy_meta else "",
+                    "title": self.vacancy_meta[idx].get("title", "") if self.vacancy_meta else "",
+                    "company": self.vacancy_meta[idx].get("company", "") if self.vacancy_meta else "",
+                })
+
+        combined.sort(key=lambda x: x["score"], reverse=True)
+        return combined
     
     def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:        
         vacancies = [c.get("text") for c in candidates]
