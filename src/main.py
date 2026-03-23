@@ -94,6 +94,7 @@ def main():
 
     @appFastApi.post("/analyze")
     async def analyze(resume: Resume):
+        print(resume)
         result = app.explorer.analyze(resume)
         print(result)
         return result.to_dict()
@@ -104,10 +105,10 @@ def main():
         Принимает любой JSON и отправляет его в Kafka."""
     
         result = app.matcher.match(resume)
-        print(result)
-        return result
+        print(result.to_dict())
+        return result.to_dict()
     
-    uvicorn.run(appFastApi, host="0.0.0.0", port='80')
+    uvicorn.run(appFastApi, host="0.0.0.0", port=80)
 
 if __name__ == "__main__":
     main()

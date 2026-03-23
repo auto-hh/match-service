@@ -2,7 +2,7 @@ from dataclasses import dataclass, asdict
 from typing import Dict, Any
 
 @dataclass
-class Resume:  
+class Resume:
     resume_id: int = 0
     grade: str = ""
     job_title: str = ""
