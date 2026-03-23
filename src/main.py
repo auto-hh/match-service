@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
 from schemas import Resume
-
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 import os
 import torch
 from app import App
@@ -83,6 +84,14 @@ def main():
         
     appFastApi = FastAPI(title="JSON Proxy")
 
+    appFastApi.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],              # Разрешить запросы с любых доменов
+        allow_credentials=True,           # Разрешить куки и заголовки авторизации
+        allow_methods=["*"],              # Разрешить все методы (GET, POST, PUT, DELETE...)
+        allow_headers=["*"],              # Разрешить все заголовки
+    )
+
     @appFastApi.post("/analyze")
     async def analyze(resume: Resume):
         result = app.explorer.analyze(resume)
@@ -98,8 +107,6 @@ def main():
         print(result)
         return result
     
-    import uvicorn
-        
     uvicorn.run(appFastApi, host="0.0.0.0", port='80')
 
 if __name__ == "__main__":
