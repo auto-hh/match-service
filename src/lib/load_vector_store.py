@@ -5,20 +5,21 @@ from pathlib import Path
 from .bm25_index import load_bm25_index
 
 def load_vector_store(index_path: str, model):
-    print("📥 Загрузка FAISS индекса...")
+    print("🔄 Загрузка FAISS индекса...")
     
     index_path = Path(index_path)
     
     index = faiss.read_index(str(index_path / "vacancy_index.faiss"))
     vacancy_ids = np.load(index_path / "vacancy_ids.npy")
 
+    print(f"🔄 Загрузка BM25 индекса...")
     bm25 = None
     bm25_path = index_path / "bm25_index.pkl"
     if bm25_path.exists():
         bm25 = load_bm25_index(str(bm25_path))
         print(f"✅ BM25 индекс загружен")
     else:
-        print("⚠️ BM25 индекс не найден")
+        raise Exception("⚠️ BM25 индекс не найден")
     
     vacancy_meta = None
     meta_path = index_path / "vacancy_meta.json"
@@ -47,7 +48,7 @@ def load_vector_store(index_path: str, model):
         vacancy_texts = cleaned_texts
         print(f"✅ Тексты загружены и очищены: {len(vacancy_texts)}")
     else:
-        print("⚠️ vacancy_texts.npy не найден")
+        raise Exception("⚠️ vacancy_texts.npy не найден")
     
     print(f"✅ Загружено: {index.ntotal:,} векторов")
     
