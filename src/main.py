@@ -1,10 +1,10 @@
+from fastapi import FastAPI, HTTPException, Request
+from schemas import Resume
+
 import os
 import torch
-import threading
-from pathlib import Path
 from app import App
 from dotenv import load_dotenv
-from api import MatchingWorker, ExplorationWorker
 from huggingface_hub import login
 
 load_dotenv()
@@ -80,30 +80,32 @@ def main():
     if app.explorer is None:
         print("Explorer не загружен")
         return
-    
-    workers = [
-        MatchingWorker(
-            matcher=app.matcher,
-            kafka_bootstrap=kafka_bootstrap,
-            input_topic=matching_input_topic,
-            output_topic=matching_output_topic,
-        ),
-        ExplorationWorker(
-            explorer=app.explorer,
-            kafka_bootstrap=kafka_bootstrap,
-            input_topic=exploration_input_topic,
-            output_topic=exploration_output_topic,
-        ),
-    ]
-    
-    threads = []
-    for worker in workers:
-        thread = threading.Thread(target=worker.run, daemon=False)
-        thread.start()
-        threads.append(thread)
         
-    for thread in threads:
-        thread.join()
+    appFastApi = FastAPI(title="JSON Proxy")
+
+    @appFastApi.post("/analyze")
+    async def analyze(resume: Resume):
+        result = app.explorer.analyze(resume)
+        print(result)
+        return result.to_dict()
+
+    @appFastApi.post("/resume")
+    async def match(resume: Resume):
+        """
+        Принимает любой JSON и отправляет его в Kafka."""
+    
+        result = app.matcher.match(resume)
+        print(result)
+        return result
+    
+    import uvicorn
+        
+    uvicorn.run(appFastApi, host="0.0.0.0", port='80')
 
 if __name__ == "__main__":
     main()
+
+
+
+
+    
