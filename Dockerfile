@@ -1,11 +1,23 @@
-FROM python:3.11-slim
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+FROM python:3.11-slim AS executor
 
-CMD ["python", "-m", "src.main"]
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+ENV TRANSFORMERS_CACHE=/tmp/huggingface
+ENV HF_HOME=/tmp/huggingface
+
+COPY src/ ./src/
+
+CMD ["python", "./src/main.py"]

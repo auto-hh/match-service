@@ -2,6 +2,7 @@ import faiss
 import json
 import numpy as np
 from pathlib import Path
+from .bm25_index import load_bm25_index
 
 def load_vector_store(index_path: str, model):
     print("📥 Загрузка FAISS индекса...")
@@ -10,6 +11,14 @@ def load_vector_store(index_path: str, model):
     
     index = faiss.read_index(str(index_path / "vacancy_index.faiss"))
     vacancy_ids = np.load(index_path / "vacancy_ids.npy")
+
+    bm25 = None
+    bm25_path = index_path / "bm25_index.pkl"
+    if bm25_path.exists():
+        bm25 = load_bm25_index(str(bm25_path))
+        print(f"✅ BM25 индекс загружен")
+    else:
+        print("⚠️ BM25 индекс не найден")
     
     vacancy_meta = None
     meta_path = index_path / "vacancy_meta.json"
@@ -47,5 +56,6 @@ def load_vector_store(index_path: str, model):
         "vacancy_ids": vacancy_ids,
         "vacancy_meta": vacancy_meta,
         "model": model,
+        "bm25": bm25,
         "vacancy_texts": vacancy_texts,
     }

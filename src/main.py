@@ -1,12 +1,20 @@
 import os
+import torch
 import threading
+from pathlib import Path
 from app import App
 from dotenv import load_dotenv
 from api import MatchingWorker, ExplorationWorker
+from huggingface_hub import login
 
 load_dotenv()
 
 def main():
+    hf_token = os.getenv("HF_TOKEN")
+    if hf_token:
+        login(token=hf_token)
+        print("hf_token успешно применен")
+        
     bi_encoder_name = os.getenv("BI_ENCODER_NAME")
     if not bi_encoder_name:
         raise ValueError("BI_ENCODER_NAME не задан")
@@ -39,6 +47,8 @@ def main():
     llm_model = os.getenv("LLM_MODEL")
     
     generate_letters = bool(True if os.getenv("GENERATE_LETTERS") == "True" else False)
+
+    print(f"device: {'cuda' if torch.cuda.is_available() else 'cpu'}")
 
     print("Инициализация приложения...")
     app = App(

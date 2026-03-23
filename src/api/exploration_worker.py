@@ -21,4 +21,5 @@ class ExplorationWorker(BaseWorker):
     def process_message(self, message: dict[str, Any]) -> dict[str, Any]:
         resume = Resume.from_dict(message)        
         result = self.explorer.analyze(resume)
+        print(result)
         return result.to_dict()
