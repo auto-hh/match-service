@@ -1,45 +1,40 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field
+from typing import Dict, Any
+
 
 class Resume(BaseModel):
-    resume_id: int = 0
-    grade: str = "Не указано"
-    job_title: str = "Не указано"
-    location: str = "Не указано"
-    salary_val: Optional[int] = None
-    salary_curr: str = "RUB"
-    skills_res: str = "Не указано"
-    about_me: str = "Не указано"
-    exp_count: int = 0
-    exp_text: str = "Не указано"
-    edu_uni: str = "Не указано"
-    edu_year: Optional[str] = None
-    
-    # Для совместимости с вашим кодом (в Pydantic v2 это model_dump)
+    experience: str = Field(default="", description="Опыт работы (время)")
+    job_title: str = Field(default="", description="Желаемая должность")
+    grade: str = Field(default="", description="Грейд: junior/middle/senior")
+    work_format: str = Field(default="", description="Формат работы: офис/удалёнка/гибрид")
+    salary: str = Field(default="", description="Ожидаемая зарплата")
+    city: str = Field(default="", description="Город")
+    about_me: str = Field(default="", description="О себе")
+    recent_jobs: str = Field(default="", description="Опыт работы")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Resume':
+        mapped = {
+            "experience": data.get("experience", ""),
+            "job_title": data.get("job_title"),
+            "grade": data.get("grade", ""),
+            "work_format": data.get("work_format"),
+            "salary": data.get("salary", ""),
+            "city": data.get("city", ""),
+            "about_me": data.get("about_me"),
+            "recent_jobs": data.get("recent_jobs"),
+        }
+        cleaned = {k: (v if v is not None else "") for k, v in mapped.items()}
+        return cls(**cleaned)
+
     def to_dict(self) -> Dict[str, Any]:
-        return self.model_dump()
+        """Экспорт в dict"""
+        return self.model_dump(exclude_none=True)
+
+    def to_json(self, **kwargs) -> str:
+        """Экспорт в JSON-строку."""
+        return self.model_dump_json(**kwargs)
+
+    def __repr__(self):
+        return f"Resume(job_title='{self.job_title[:30]}...', city='{self.city}', grade='{self.grade}')"
     
-    # Валидатор для обработки дублирующихся полей (resume_id / vacancy_id)
-    @field_validator("resume_id", mode="before")
-    @classmethod
-    def parse_resume_id(cls, value):
-        # Если пришло vacancy_id вместо resume_id
-        if value is None or value == 0:
-            return 0
-        return int(value)
-    
-    # Валидатор для salary_val (может прийти строка или None)
-    @field_validator("salary_val", mode="before")
-    @classmethod
-    def parse_salary_val(cls, value):
-        if value is None or value == "" or value == "Не указано":
-            return None
-        return int(value)
-    
-    # Валидатор для edu_year (может прийти числом или строкой)
-    @field_validator("edu_year", mode="before")
-    @classmethod
-    def parse_edu_year(cls, value):
-        if value is None or value == "" or value == "Не указано":
-            return None
-        return str(value)

@@ -32,18 +32,14 @@ python ./src/main.py
 
 ```json
 {
-    "resume_id": 99999,
-    "grade": "senior",
     "job_title": "Python Backend Developer",
-    "location": "Москва",
-    "salary_val": 300000,
-    "salary_curr": "RUB",
-    "skills_res": "Python, FastAPI, PostgreSQL, Docker, Kafka, Redis",
+    "grade": "senior",
+    "city": "Москва",
+    "salary": "300000 RUB",
+    "work_format": "офис",
     "about_me": "Разрабатываю бэкенд 5 лет. Люблю чистый код и микросервисы.",
-    "exp_count": 5,
-    "exp_text": "Senior Developer @ TechCorp (2020-2024)",
-    "edu_uni": "МГУ",
-    "edu_year": "2018"
+    "experience": "Senior Developer @ TechCorp (2020-2024)",
+    "recent_jobs": "Python, FastAPI, PostgreSQL, Docker, Kafka, Redis"
 }
 ```
 
@@ -51,17 +47,13 @@ python ./src/main.py
 
 ```json
 {
-    "resume_id": 12345,
-    "grade": "middle",
     "job_title": "Python Backend Developer",
-    "location": "Москва",
-    "salary_val": 200000,
-    "salary_curr": "RUB",
-    "skills_res": "Python, FastAPI, PostgreSQL",
-    "about_me": "Разрабатываю бэкенд 3 года",
-    "exp_count": 3,
-    "exp_text": "Senior Developer @ TechCorp",
-    "edu_uni": "МГУ",
-    "edu_year": "2020"
+    "grade": "senior",
+    "city": "Москва",
+    "salary": "300000 RUB",
+    "work_format": "офис",
+    "about_me": "Разрабатываю бэкенд 5 лет. Люблю чистый код и микросервисы.",
+    "experience": "Senior Developer @ TechCorp (2020-2024)",
+    "recent_jobs": "Python, FastAPI, PostgreSQL, Docker, Kafka, Redis"
 }
 ```

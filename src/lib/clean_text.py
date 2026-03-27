@@ -1,8 +1,9 @@
 import re
 import pandas as pd
 from bs4 import BeautifulSoup
+from typing import Any
 
-def clean_text(html: str) -> str:
+def clean_text(html: Any) -> str:
     if pd.isna(html) or not isinstance(html, str):
         return ""
 
@@ -16,3 +17,5 @@ def clean_text(html: str) -> str:
     text = re.sub(r'https?://\S+|t\.me/\S+|www\.\S+', '', text)
     text = re.sub(r'\+7[\d\s\-\(\)]{10,}', '', text)
     text = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '', text)
+    
+    return text

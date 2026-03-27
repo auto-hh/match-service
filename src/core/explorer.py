@@ -8,11 +8,10 @@ class Explorer:
     
     def analyze(self, resume: Resume) -> ExplorationResult:       
         try:            
-            text = format_resume(resume.to_dict())        
+            text = format_resume(resume)        
             tokens = self.bi_encoder.get_weights(text)
                                         
             return ExplorationResult(
-                resume_id=resume.resume_id,
                 tokens=tokens,
                 status="success",
             )
@@ -20,7 +19,6 @@ class Explorer:
         except Exception as e:
             print(e)
             return ExplorationResult(
-                resume_id=resume.resume_id,
                 tokens=[],
                 status="error",
             )

@@ -5,7 +5,6 @@ from schemas import Token
 
 PUNCTUATION = set(string.punctuation) | set('«»„"„""—–…')
 
-
 def merge_tokens_to_words(
     tokens: List[str],
     weights: np.ndarray,
@@ -24,7 +23,7 @@ def merge_tokens_to_words(
     cls_weight = 0.0
     content_tokens = []
     content_weights = []
-    content_indices = []  # Сохраняем индексы для маппинга
+    content_indices = []
     
     for i, (token, weight) in enumerate(zip(tokens, weights)):
         if _is_special_token(token, tokenizer_type):
@@ -267,3 +266,4 @@ def _is_cls_token(token: str, tokenizer_type: str) -> bool:
         "sentencepiece": "<s>",
     }
     return token == cls_tokens.get(tokenizer_type, "")
+

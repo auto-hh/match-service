@@ -26,7 +26,7 @@ class Vacancy(BaseModel):
 
 if __name__ == '__main__':
     data = {
-        "jobTitle": "Python Developer",
+        "job_title": "Python Developer",
         "salary": "150000 - 200000 RUB",
         "city": "Москва",
         "body": "<p>Разработка <b>бэкенда</b> на FastAPI</p>",
@@ -35,4 +35,4 @@ if __name__ == '__main__':
     
     vacancy = Vacancy.from_dict(data)
     
-    print("Для Go (camelCase):", vacancy.to_dict(by_alias=True))
+    print(vacancy.to_dict(by_alias=True))

@@ -10,45 +10,34 @@ class Matcher:
         self.letter_generator = letter_generator
         self.generate_letters = generate_letters
     
-    def match(self, resume: Resume, final_top_k: int = 5) -> MatchResult:
-        search_text = format_resume(resume.to_dict())
-        
-        if not search_text or not search_text.strip():
-            return MatchResult(
-                resume_id=resume.resume_id,
-                matches=[],
-                status="no_matches",
-            )
-        
-        results = self.retriever.search(search_text)
-        
-        matches: List[VacancyMatch] = [VacancyMatch.from_dict(r) for r in results]
+    def match(self, resume: Resume) -> MatchResult:
+        results = self.retriever.search(resume)
+        matches: List[VacancyMatch] = [VacancyMatch.from_dict(r) for r in results]        
         status = "success" if matches else "no_matches"
 
-        if self.generate_letters and self.letter_generator:
-            print('Генерирую письма...')
+        # if self.generate_letters and self.letter_generator:
+        #     print('Генерирую письма...')
             
-            resume_text = f"""
-            {resume.about_me or ''}
-            {resume.exp_text or ''}
-            Навыки: {resume.skills_res or ''}
-            """.strip()
+        #     resume_text = f"""
+        #     {resume.about_me or ''}
+        #     {resume.exp_text or ''}
+        #     Навыки: {resume.skills_res or ''}
+        #     """.strip()
 
-            for match in matches[:final_top_k]:
-                vacancy_data = {
-                    "vacancy_id": match.vacancy_id,
-                    "job_title": match.job_title,
-                    "skills_vac": match.skills_vac,
-                    "vacancy_text": match.vacancy_text,
-                    "salary": match.salary,
-                    "company": getattr(match, 'company', ''),
-                }
+        #     for match in matches[:final_top_k]:
+        #         vacancy_data = {
+        #             "vacancy_id": match.vacancy_id,
+        #             "job_title": match.job_title,
+        #             "skills_vac": match.skills_vac,
+        #             "vacancy_text": match.vacancy_text,
+        #             "salary": match.salary,
+        #             "company": getattr(match, 'company', ''),
+        #         }
 
-                result = self.letter_generator.generate(resume_text, vacancy_data)
-                match.cover_letter = result.letter
+        #         result = self.letter_generator.generate(resume_text, vacancy_data)
+        #         match.cover_letter = result.letter
         
         return MatchResult(
-            resume_id=resume.resume_id,
             matches=matches,
             status=status,
         )

@@ -1,59 +1,10 @@
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field, ConfigDict
-# from schemas import Vacancy  # Твой новый Pydantic-класс Vacancy
-
-from typing import Dict, Any
-from pydantic import BaseModel, Field
-
-class Vacancy(BaseModel):
-    job_title: str = Field(default="", description="Название вакансии")
-    salary: str = Field(default="", description="Зарплата (от - до)")
-    city: str = Field(default="", description="Город")
-    body: str = Field(default="", description="Описание вакансии")
-    link: str = Field(default="", description="Ссылка на вакансию")
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Vacancy':
-        """Создаёт модель из dict (поддерживает оба стиля ключей)."""
-        return cls.model_validate(data)
-    
-    @classmethod
-    def from_json(cls, json_str: str) -> 'Vacancy':
-        return cls.model_validate_json(json_str)
-    
-    def to_dict(self, by_alias: bool = True) -> Dict[str, Any]:
-        return self.model_dump(by_alias=by_alias, exclude_none=True)
-    
-    def to_json(self, by_alias: bool = True, **kwargs) -> str:
-        return self.model_dump_json(by_alias=by_alias, **kwargs)
-    
-
-if __name__ == '__main__':
-    data = {
-        "jobTitle": "Python Developer",
-        "salary": "150000 - 200000 RUB",
-        "city": "Москва",
-        "body": "<p>Разработка <b>бэкенда</b> на FastAPI</p>",
-        "link": "https://hh.ru/vacancy/12345"
-    }
-    
-    vacancy = Vacancy.from_dict(data)
-    
-    print("Для Go (camelCase):", vacancy.to_dict(by_alias=True))
-
+from schemas import Vacancy
 
 class VacancyMatch(Vacancy):
-    """
-    Вакансия с добавлением скоринга для матчинга.
-    Наследует все поля из Vacancy: jobTitle, salary, city, body, link
-    """
-    score: float = Field(default=0.0, ge=0.0, le=1.0, description="Скор релевантности (0..1)")
-    
-    # Разрешаем дополнительные поля, если они придут извне (опционально)
-    model_config = ConfigDict(extra='ignore')
-    
-    # === Методы совместимости (если где-то используется старый API) ===
-    
+    score: float = Field(default=0.0, description="Скор релевантности (0..1)")
+        
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'VacancyMatch':
         """Создаёт из dict (алиас для model_validate)."""
@@ -66,7 +17,7 @@ class VacancyMatch(Vacancy):
     def __repr__(self):
         # Используем alias-имена для консистентности с JSON
         d = self.to_dict(by_alias=True)
-        return (f"VacancyMatch(jobTitle='{d.get('jobTitle', '')[:30]}...', "
+        return (f"VacancyMatch(job_title='{d.get('job_title', '')[:30]}...', "
                 f"score={self.score:.4f}, city='{d.get('city', '')}')")
 
 
@@ -112,20 +63,20 @@ class MatchResult(BaseModel):
     
     def __repr__(self):
         top = self.best_match
-        best_info = f"{top.to_dict(by_alias=True).get('jobTitle', '')[:30]}... ({top.score:.3f})" if top else "None"
-        return f"MatchResult(resume_id={self.resume_id}, status='{self.status}', best_match={best_info}, total={len(self.matches)})"
+        best_info = f"{top.to_dict(by_alias=True).get('job_title', '')[:30]}... ({top.score:.3f})" if top else "None"
+        return f"MatchResult(status='{self.status}', best_match={best_info}, total={len(self.matches)})"
 
 
 if __name__ == '__main__':
     vacancy = Vacancy(
-        jobTitle="Python Developer",
+        job_title="Python Developer",
         salary="150000 - 200000 RUB",
         city="Москва",
         body="Разработка бэкенда на FastAPI, PostgreSQL.",
         link="https://hh.ru/vacancy/12345"
     )
     
-    result = MatchResult(resume_id=42)
+    result = MatchResult()
     
     result.add_match(vacancy, score=0.87)
     

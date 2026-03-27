@@ -1,6 +1,8 @@
 from typing import List, Dict
+from schemas import Resume, Vacancy
 from models import BiEncoder, CrossEncoder
-from lib import bm25_search
+from lib import bm25_search, format_resume, format_vacancy
+from collections import defaultdict
 
 class Retriever:
     def __init__(
@@ -28,12 +30,15 @@ class Retriever:
         self.bm25 = store.get("bm25")
         self.bm25_weight = bm25_weight
     
-    def search(self, query: str) -> List[Dict]:
+    def search(self, resume: Resume) -> List[Dict]:
+        query = format_resume(resume)
+        if not query or not query.strip():
+            return []
+            
         bi_results = self._search(query)
         bm25_results = self._bm25_search(query)
 
-        hybrid_results = self._combine_results(bi_results, bm25_results)
-        
+        hybrid_results = self._combine_results(bi_results, bm25_results)        
         if not hybrid_results:
             return []
                 
@@ -51,81 +56,79 @@ class Retriever:
         
         distances, indices = self.index.search(query_emb, self.retrieval_top_k)
         
-        candidates = {}
+        candidates = []
         for idx, dist in zip(indices[0], distances[0]):
             if dist < self.min_score:
                 continue
             
-            vac_id = int(self.vacancy_ids[idx])
-            meta = self.vacancy_meta[idx] if self.vacancy_meta else {}
-            text = self.vacancy_texts[idx] if self.vacancy_texts is not None else ""
-            
-            candidates[int(idx)] = {
-                "idx": int(idx),
-                "vacancy_id": vac_id,
-                "score": float(dist),
-                "text": text,
-                "target_role": meta.get("target_role", ""),
-                "grade": meta.get("grade", ""),
-                "title": meta.get("title", ""),
-                "company": meta.get("company", ""),
-            }
+            meta = self.vacancy_meta[idx] if self.vacancy_meta else {}            
+            candidates.append(meta)
                 
         return candidates
 
     def _bm25_search(self, query: str) -> List[Dict]:
         bm25_results = bm25_search(self.bm25, query, top_k=self.retrieval_top_k)
 
-        results = {}
-        for idx, score in bm25_results:
-            if score > 0:
-                results[idx] = {
-                    "idx": idx,
-                    "vacancy_id": int(self.vacancy_ids[idx]),
-                    "score": score,
-                    "dense_score": 0.0,
-                    "bm25_score": float(score),
-                }
+        results = [{
+            **self.vacancy_meta[idx],
+            "score": score,
+        } for idx, score in bm25_results if score > 0]
+        
         return results
 
-    def _combine_results(self, dense: Dict, bm25: Dict) -> List[Dict]:
-        all_indices = set(dense.keys()) | set(bm25.keys())
+    def _combine_results(self, dense: List[Dict], bm25: List[Dict], k: int = 60) -> List[Dict]:
+        rrf_scores = defaultdict(float)
+        
+        for rank, item in enumerate(dense, start=1):
+            link = item.get('link')
+            if link:
+                rrf_scores[link] += 1.0 / (k + rank)
+        
+        for rank, item in enumerate(bm25, start=1):
+            link = item.get('link')
+            if link:
+                rrf_scores[link] += 1.0 / (k + rank)
 
+        all_items = {item.get('link'): item for item in dense if item.get('link')}
+        all_items.update({item.get('link'): item for item in bm25 if item.get('link')})
+        
         combined = []
-        for idx in all_indices:
-            d_score = dense.get(idx, {}).get("dense_score", 0.0)
-            b_score = bm25.get(idx, {}).get("bm25_score", 0.0)
-
-            hybrid_score = (1 - self.bm25_weight) * d_score + self.bm25_weight * b_score
-
-            if hybrid_score >= self.min_score:
-                combined.append({
-                    "idx": idx,
-                    "vacancy_id": int(self.vacancy_ids[idx]),
-                    "score": hybrid_score,
-                    "dense_score": d_score,
-                    "bm25_score": b_score,
-                    "text": self.vacancy_texts[idx] if self.vacancy_texts else "",
-                    "target_role": self.vacancy_meta[idx].get("target_role", "") if self.vacancy_meta else "",
-                    "grade": self.vacancy_meta[idx].get("grade", "") if self.vacancy_meta else "",
-                    "title": self.vacancy_meta[idx].get("title", "") if self.vacancy_meta else "",
-                    "company": self.vacancy_meta[idx].get("company", "") if self.vacancy_meta else "",
-                })
-
+        for link, score in rrf_scores.items():
+            if score < self.min_score:
+                continue
+                
+            source = all_items.get(link, {})
+            
+            combined.append({
+                "job_title": source.get("job_title"),
+                "city": source.get("city", ""),
+                "salary": source.get("salary", ""),
+                "body": source.get("body", ""),
+                "link": link,
+                "score": score,
+            })
+        
         combined.sort(key=lambda x: x["score"], reverse=True)
-        return combined
+           
+        return [{
+            "job_title": data.get("job_title"),
+            "city": data.get("city"),
+            "salary": data.get("salary"),
+            "body": source.get("body", ""),
+            "link": data.get("link"),
+        } for data in combined]
     
     def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:        
-        vacancies = [c.get("text") for c in candidates]
+        vacancies = [format_vacancy(Vacancy.from_dict(c)) for c in candidates]
         
         if not vacancies:
             return []
         
-        ce_scores = self.cross_encoder.rerank(query, vacancies)        
+        ce_scores = self.cross_encoder.get_scores(query, vacancies)
+        # TODO: накинуть софтмакс на scores
         
-        for c, stats in zip(candidates, ce_scores):
-            c["score"] = float(stats["score"])
+        for candidate, score in zip(candidates, ce_scores):
+            if score >= self.min_score:
+                candidate["score"] = score
         
-        candidates = [c for c in candidates if c["score"] >= self.min_score] 
-        # TODO: Проверить, что после реранкинга score не может быть отрицательным
         return sorted(candidates, key=lambda x: x["score"], reverse=True)

@@ -1,12 +1,12 @@
 import pandas as pd
 from .clean_text import clean_text
-from schemas import Vacancy
+from schemas import Resume, Vacancy
 
 def load_dataset(path: str):
     return pd.read_csv(path).fillna('')
 
 def format_vacancy(v: Vacancy) -> str:
-    job_title = (v.jobTitle or '').strip()
+    job_title = (v.job_title or '').strip()
     city = (v.city or '').strip()
     salary = (v.salary or '').strip()
     body = clean_text(v.body).strip()
@@ -22,7 +22,7 @@ def format_vacancy(v: Vacancy) -> str:
         parts.append(f"[DESC] {body}")
     
     meta = []
-    if salary and salary.lower() != 'не указана':
+    if salary:
         meta.append(f"зарплата: {salary}")
     
     if meta:
@@ -30,29 +30,34 @@ def format_vacancy(v: Vacancy) -> str:
     
     return ' | '.join(parts)
 
-def format_resume(r: dict) -> str:
-    job_title = r.get("job_title_res") or r.get("job_title") or "Не указано"
+def format_resume(r: Resume) -> str:
+    parts = []
     
-    if r.get("salary_val"):
-        salary = f"{r.get('salary_val')} {r.get('salary_curr')}"
-    else:
-        salary = "Не указано"
+    if r.job_title and r.job_title.strip():
+        parts.append(f"[ROLE] {r.job_title.strip()}")
     
-    exp_text = clean_text(r.get("exp_text") or "Не указано")
+    if r.grade and r.grade.strip():
+        parts.append(f"[GRADE] {r.grade.strip()}")
     
-    if r.get('edu_uni') and r.get("edu_uni") != "Не указано":
-        edu_info = f"{r.get('edu_uni', 'Не указано')} (год выпуска: {r.get('edu_year', 'Не указано')})" if r.get('edu_uni') else "Не указано"
-    else:
-        edu_info = "Не указано"
-        
-    skills_res = r.get("skills_res") or "Не указано"
-    about_me = r.get('about_me') or "Не указано"
+    if r.city and r.city.strip():
+        parts.append(f"[LOC] {r.city.strip()}")
     
-    return (
-        f"ВАКАНСИЯ: {job_title}. "
-        f"ЗАРПЛАТА: {salary}. "
-        f"ОПЫТ: {exp_text}. "
-        f"ОБРАЗОВАНИЕ: {edu_info}. "
-        f"НАВЫКИ: {skills_res}. "
-        f"О СЕБЕ: {about_me}"   
-    )
+    if r.work_format and r.work_format.strip():
+        parts.append(f"[FORMAT] {r.work_format.strip()}")
+    
+    if r.salary and r.salary.strip():
+        parts.append(f"[SALARY] {r.salary.strip()}")
+    
+    if r.recent_jobs and r.recent_jobs.strip():
+        text = r.recent_jobs.strip()
+        parts.append(f"[SKILLS] {text}")
+    
+    if r.experience and r.experience.strip():
+        text = r.experience.strip()
+        parts.append(f"[EXP] {text}")
+    
+    if r.about_me and r.about_me.strip():
+        text = r.about_me.strip()
+        parts.append(f"[ABOUT] {text}")
+    
+    return ' | '.join(parts)
