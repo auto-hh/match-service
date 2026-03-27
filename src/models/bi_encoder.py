@@ -32,10 +32,10 @@ class BiEncoder(SentenceTransformer):
     def _apply_lora(self, lora_config: Optional[Dict[str, Any]] = None):
         if lora_config is None:
             lora_config = {
-                "r": 16,
+                "r": 8,
                 "lora_alpha": 32,
                 "lora_dropout": 0.0,
-                "target_modules": ["query", "value", "key"],
+                "target_modules": ["query", "value"],
                 "bias": "none",
                 "task_type": TaskType.FEATURE_EXTRACTION,
                 "init_lora_weights": "pissa"
