@@ -7,10 +7,11 @@ class CrossEncoder:
         self.model = CrEnc(model_name, device=device)
         print("✅ Cross-Encoder готов!")
 
-    def get_scores(self, query: str, documents: List[str], top_k: Optional[int] = None) -> List[Dict]:
+    def get_scores(self, query: str, documents: List[str], top_k: Optional[int] = None) -> List[float]:
         pairs = [[query, doc] for doc in documents]
         scores = self.model.predict(pairs)
         
+        scores = list(map(float, scores))
         scores = scores[:len(documents)]
 
         if top_k is not None:

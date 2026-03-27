@@ -1,7 +1,7 @@
 from typing import List, Dict
 from schemas import Resume, Vacancy
 from models import BiEncoder, CrossEncoder
-from lib import bm25_search, format_resume, format_vacancy
+from lib import bm25_search, format_resume, format_vacancy, apply_softmax
 from collections import defaultdict
 
 class Retriever:
@@ -125,7 +125,11 @@ class Retriever:
             return []
         
         ce_scores = self.cross_encoder.get_scores(query, vacancies)
-        # TODO: накинуть софтмакс на scores
+        
+        print(ce_scores)
+        input()
+        
+        ce_scores = apply_softmax(ce_scores)
         
         for candidate, score in zip(candidates, ce_scores):
             if score >= self.min_score:
