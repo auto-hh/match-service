@@ -1,30 +1,34 @@
-import re
 import pandas as pd
+from .clean_text import clean_text
+from schemas import Vacancy
 
 def load_dataset(path: str):
     return pd.read_csv(path).fillna('')
 
-def clean_text(text: str) -> str:
-    if not text:
-        return ""
-    text = re.sub(r'<[^>]+>', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-def format_vacancy(v: dict) -> str:
-    job_title = v.get('job_title_vac') or v.get("job_title") or v.get('target_role') or "Не указано"
-    experience = v.get('experience') or "Не указано"
-    salary = v.get("salary") or "Не указано"
-    skills_vac = v.get("skills_vac") or "Не указано"
-    vacancy_text = clean_text(v.get("vacancy_text") or "Не указано")
+def format_vacancy(v: Vacancy) -> str:
+    job_title = (v.jobTitle or '').strip()
+    city = (v.city or '').strip()
+    salary = (v.salary or '').strip()
+    body = clean_text(v.body).strip()
     
-    return (
-        f"ВАКАНСИЯ: {job_title}. "
-        f"ЗАРПЛАТА: {salary}. "
-        f"ОПЫТ: {experience}. "
-        f"НАВЫКИ: {skills_vac}. "
-        f"ОПИСАНИЕ: {vacancy_text}"
-    )
+    parts = []
+    
+    if job_title:
+        parts.append(f"[ROLE] {job_title}")
+    if city:
+        parts.append(f"[LOC] {city}")
+    
+    if body:
+        parts.append(f"[DESC] {body}")
+    
+    meta = []
+    if salary and salary.lower() != 'не указана':
+        meta.append(f"зарплата: {salary}")
+    
+    if meta:
+        parts.append(f"[META] {'; '.join(meta)}")
+    
+    return ' | '.join(parts)
 
 def format_resume(r: dict) -> str:
     job_title = r.get("job_title_res") or r.get("job_title") or "Не указано"
