@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import HTTPException
 
-from core import Matcher, Retriever, LetterGenerator, LLMMode, Explorer
+from core import Matcher, Retriever, LetterGenerator, Explorer
 from lib import load_vector_store, load_bi_encoder, load_cross_encoder
 from config import settings, Settings
 from huggingface_hub import login
@@ -26,11 +26,9 @@ class ResumeService:
         final_top_k: int,
         model_path: Optional[str] = None,
         min_score: float = 0.0,
-        llm_mode: Optional[str] = None,
         llm_api_key: Optional[str] = None,
         llm_base_url: Optional[str] = None,
         llm_model: Optional[str] = None,
-        generate_letters: bool = False
     ):
         self.bi_encoder_name = bi_encoder_name
         self.model_path = model_path
@@ -57,22 +55,16 @@ class ResumeService:
             min_score=min_score,
         )
 
-        if llm_mode and llm_api_key:
-            print("Инициализация LLM...")
-            self.letter_generator = LetterGenerator(
-                mode=llm_mode,
-                api_key=llm_api_key,
-                base_url=llm_base_url,
-                model=llm_model,
-            )
-        else:
-            self.letter_generator = None
-        
+        print("Инициализация LLM...")
+        self.letter_generator = LetterGenerator(
+            api_key=llm_api_key,
+            base_url=llm_base_url,
+            model=llm_model,
+        )
+            
         self.explorer = Explorer(bi_encoder=self.bi_encoder)
         self.matcher = Matcher(
             retriever=self.retriever, 
-            generate_letters=generate_letters, 
-            letter_generator=self.letter_generator
         )
         
     @classmethod
@@ -93,11 +85,9 @@ class ResumeService:
             retrieval_top_k=settings.retrieval_top_k,
             final_top_k=settings.final_top_k,
             min_score=settings.min_score,
-            llm_mode=settings.llm_mode,
             llm_api_key=settings.llm_api_key,
             llm_base_url=settings.llm_base_url,
             llm_model=settings.llm_model,
-            generate_letters=settings.generate_letters,
         )
         
     def get_stats(self) -> dict:

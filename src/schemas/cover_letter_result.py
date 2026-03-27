@@ -1,14 +1,10 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
 
 class CoverLetterResult(BaseModel):
-    vacancy_id: int = Field(default=0, ge=0, description="ID вакансии")
-    job_title: str = Field(default="", description="Название вакансии")
     letter: str = Field(default="", description="Текст письма")
     status: str = Field(default="success", pattern="^(success|error|pending)$", description="Статус")
-    mode: str = Field(default="api", pattern="^(api|local|batch)$", description="Режим генерации")
-    error: Optional[str] = Field(default=None, description="Ошибка, если status='error'")
         
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'CoverLetterResult':
@@ -24,4 +20,4 @@ class CoverLetterResult(BaseModel):
         return self.model_dump_json(**kwargs)
     
     def __repr__(self) -> str:
-        return f"CoverLetterResult(vacancy_id={self.vacancy_id}, job_title='{self.job_title}', status='{self.status}')"
+        return f"CoverLetterResult(letter='{self.letter}', status='{self.status}')"
