@@ -1,37 +1,45 @@
-from dataclasses import dataclass, asdict
-from typing import Dict, Any
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Dict, Any
 
-@dataclass
-class Resume:
+class Resume(BaseModel):
     resume_id: int = 0
-    grade: str = ""
-    job_title: str = ""
-    location: str = ""
-    salary_val: int = 0
+    grade: str = "Не указано"
+    job_title: str = "Не указано"
+    location: str = "Не указано"
+    salary_val: Optional[int] = None
     salary_curr: str = "RUB"
-    skills_res: str = ""
-    about_me: str = ""
+    skills_res: str = "Не указано"
+    about_me: str = "Не указано"
     exp_count: int = 0
-    exp_text: str = ""
-    edu_uni: str = ""
-    edu_year: str = ""
+    exp_text: str = "Не указано"
+    edu_uni: str = "Не указано"
+    edu_year: Optional[str] = None
     
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]):
-        return cls(
-            resume_id=int(data.get("resume_id", data.get("vacancy_id", 0))),
-            grade=str(data.get("grade", "Не указано")),
-            job_title=str(data.get("job_title", "Не указано")),
-            location=str(data.get("location", "Не указано")),
-            salary_val=int(data["salary_val"]) if data.get("salary_val") else "Не указано",
-            salary_curr=str(data.get("salary_curr", "RUB")),
-            skills_res=str(data.get("skills_res", "Не указано")),
-            about_me=str(data.get("about_me", "Не указано")),
-            exp_count=int(data.get("exp_count", 0)),
-            exp_text=str(data.get("exp_text", "Не указано")),
-            edu_uni=str(data.get("edu_uni", "Не указано")),
-            edu_year=int(data["edu_year"]) if data.get("edu_year") else None,
-        )
-    
+    # Для совместимости с вашим кодом (в Pydantic v2 это model_dump)
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        return self.model_dump()
+    
+    # Валидатор для обработки дублирующихся полей (resume_id / vacancy_id)
+    @field_validator("resume_id", mode="before")
+    @classmethod
+    def parse_resume_id(cls, value):
+        # Если пришло vacancy_id вместо resume_id
+        if value is None or value == 0:
+            return 0
+        return int(value)
+    
+    # Валидатор для salary_val (может прийти строка или None)
+    @field_validator("salary_val", mode="before")
+    @classmethod
+    def parse_salary_val(cls, value):
+        if value is None or value == "" or value == "Не указано":
+            return None
+        return int(value)
+    
+    # Валидатор для edu_year (может прийти числом или строкой)
+    @field_validator("edu_year", mode="before")
+    @classmethod
+    def parse_edu_year(cls, value):
+        if value is None or value == "" or value == "Не указано":
+            return None
+        return str(value)

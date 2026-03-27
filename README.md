@@ -18,42 +18,50 @@ cp .env.example .env
 
 Обязательные поля: BI_ENCODER_NAME, CROSS_ENCODER, FAISS_PATH
 
-3. Запуск кафки
-
-```bash
-docker run --name kafka -p 9092:9092 -p 9093:9093 \
-  -e KAFKA_NODE_ID=1 \
-  -e KAFKA_PROCESS_ROLES=broker,controller \
-  -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093 \
-  -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093 \
-  -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
-  -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 \
-  -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
-  -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-  -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
-  -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 \
-  -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 \
-  -e KAFKA_NUM_PARTITIONS=3 \
-  -v kafka_data:/var/lib/kafka/data \
-  apache/kafka:3.9.0
-```
-
-4. Запуск приложения
+3. Запуск приложения
 
 ```bash
 python ./src/main.py
 ```
 
-# 🧪 Тестирование Kafka
+# 🧪 Тестирование
 
-1. Тест matching воркера:
+1. откройте http://localhost:8000/docs
 
-```bash
-python ./src/test/test_resume_matching.py
+2. Тест /search:
+
+```json
+{
+    "resume_id": 99999,
+    "grade": "senior",
+    "job_title": "Python Backend Developer",
+    "location": "Москва",
+    "salary_val": 300000,
+    "salary_curr": "RUB",
+    "skills_res": "Python, FastAPI, PostgreSQL, Docker, Kafka, Redis",
+    "about_me": "Разрабатываю бэкенд 5 лет. Люблю чистый код и микросервисы.",
+    "exp_count": 5,
+    "exp_text": "Senior Developer @ TechCorp (2020-2024)",
+    "edu_uni": "МГУ",
+    "edu_year": "2018"
+}
 ```
 
-2. Тест exploration воркера:
+2. Тест /analyze:
 
-```bash
-python ./src/test/test_resume_exploring.py
+```json
+{
+    "resume_id": 12345,
+    "grade": "middle",
+    "job_title": "Python Backend Developer",
+    "location": "Москва",
+    "salary_val": 200000,
+    "salary_curr": "RUB",
+    "skills_res": "Python, FastAPI, PostgreSQL",
+    "about_me": "Разрабатываю бэкенд 3 года",
+    "exp_count": 3,
+    "exp_text": "Senior Developer @ TechCorp",
+    "edu_uni": "МГУ",
+    "edu_year": "2020"
+}
 ```

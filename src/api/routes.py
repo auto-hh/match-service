@@ -10,7 +10,7 @@ async def analyze(resume: Resume, explorer: Explorer = Depends(get_explorer)):
     result = explorer.analyze(resume)
     return result.to_dict()
 
-@router.post("/resume")
+@router.post("/search")
 async def match(resume: Resume, matcher: Matcher = Depends(get_matcher)):
     result = matcher.match(resume)
     return result.to_dict()

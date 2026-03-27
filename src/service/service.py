@@ -13,7 +13,6 @@ from config import settings, Settings
 from huggingface_hub import login
 import torch
 
-# Глобальное состояние
 _service: Optional["ResumeService"] = None
 
 class ResumeService:

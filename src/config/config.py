@@ -18,16 +18,16 @@ class Settings(BaseSettings):
     # LLM
     llm_mode: Optional[str] = None
     llm_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
     llm_base_url: Optional[str] = None
     llm_model: Optional[str] = None
     generate_letters: bool = False
-    
+        
     # Server
     host: str = "0.0.0.0"
     port: int = 8000
 
     class Config:
         env_file = ".env"
-        extra = 'ignore' # TODO: почистить .env и убрать
 
 settings = Settings()
