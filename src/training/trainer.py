@@ -42,7 +42,6 @@ class Trainer:
             save_strategy="epoch",
             logging_steps=10,
             save_total_limit=1,
-            fp16=True,
             gradient_checkpointing=True,
         )
         

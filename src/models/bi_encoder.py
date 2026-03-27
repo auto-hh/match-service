@@ -34,7 +34,7 @@ class BiEncoder(SentenceTransformer):
             lora_config = {
                 "r": 8,
                 "lora_alpha": 32,
-                "lora_dropout": 0.0,
+                "lora_dropout": 0.1,
                 "target_modules": ["query", "value"],
                 "bias": "none",
                 "task_type": TaskType.FEATURE_EXTRACTION,
