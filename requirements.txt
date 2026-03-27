@@ -2,7 +2,6 @@
 torch==2.4.0
 datasets==4.6.0
 faiss-cpu==1.13.2
-kafka_python==2.3.0
 numpy==1.26.4
 openai==2.26.0
 pandas==2.2.3
