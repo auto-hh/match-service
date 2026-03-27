@@ -1,37 +1,40 @@
-from dataclasses import dataclass, asdict
+from pydantic import BaseModel, Field
 from typing import Dict, Any
 
-@dataclass
-class Resume:
-    resume_id: int = 0
-    grade: str = ""
-    job_title: str = ""
-    location: str = ""
-    salary_val: int = 0
-    salary_curr: str = "RUB"
-    skills_res: str = ""
-    about_me: str = ""
-    exp_count: int = 0
-    exp_text: str = ""
-    edu_uni: str = ""
-    edu_year: str = ""
-    
+
+class Resume(BaseModel):
+    experience: str = Field(default="", description="Опыт работы (время)")
+    job_title: str = Field(default="", description="Желаемая должность")
+    grade: str = Field(default="", description="Грейд: junior/middle/senior")
+    work_format: str = Field(default="", description="Формат работы: офис/удалёнка/гибрид")
+    salary: str = Field(default="", description="Ожидаемая зарплата")
+    city: str = Field(default="", description="Город")
+    about_me: str = Field(default="", description="О себе")
+    recent_jobs: str = Field(default="", description="Опыт работы")
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]):
-        return cls(
-            resume_id=int(data.get("resume_id", data.get("vacancy_id", 0))),
-            grade=str(data.get("grade", "Не указано")),
-            job_title=str(data.get("job_title", "Не указано")),
-            location=str(data.get("location", "Не указано")),
-            salary_val=int(data["salary_val"]) if data.get("salary_val") else "Не указано",
-            salary_curr=str(data.get("salary_curr", "RUB")),
-            skills_res=str(data.get("skills_res", "Не указано")),
-            about_me=str(data.get("about_me", "Не указано")),
-            exp_count=int(data.get("exp_count", 0)),
-            exp_text=str(data.get("exp_text", "Не указано")),
-            edu_uni=str(data.get("edu_uni", "Не указано")),
-            edu_year=int(data["edu_year"]) if data.get("edu_year") else None,
-        )
-    
+    def from_dict(cls, data: Dict[str, Any]) -> 'Resume':
+        mapped = {
+            "experience": data.get("experience", ""),
+            "job_title": data.get("job_title"),
+            "grade": data.get("grade", ""),
+            "work_format": data.get("work_format"),
+            "salary": data.get("salary", ""),
+            "city": data.get("city", ""),
+            "about_me": data.get("about_me"),
+            "recent_jobs": data.get("recent_jobs"),
+        }
+        cleaned = {k: (v if v is not None else "") for k, v in mapped.items()}
+        return cls(**cleaned)
+
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        """Экспорт в dict"""
+        return self.model_dump(exclude_none=True)
+
+    def to_json(self, **kwargs) -> str:
+        """Экспорт в JSON-строку."""
+        return self.model_dump_json(**kwargs)
+
+    def __repr__(self):
+        return f"Resume(job_title='{self.job_title[:30]}...', city='{self.city}', grade='{self.grade}')"
+    

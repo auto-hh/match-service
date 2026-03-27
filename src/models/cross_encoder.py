@@ -7,17 +7,14 @@ class CrossEncoder:
         self.model = CrEnc(model_name, device=device)
         print("✅ Cross-Encoder готов!")
 
-    def rerank(self, query: str, documents: List[str], top_k: Optional[int] = None) -> List[Dict]:
+    def get_scores(self, query: str, documents: List[str], top_k: Optional[int] = None) -> List[float]:
         pairs = [[query, doc] for doc in documents]
         scores = self.model.predict(pairs)
-
-        results = [
-            {"document": doc, "score": float(score)}
-            for doc, score in zip(documents, scores)
-        ]
-        results.sort(key=lambda x: x["score"], reverse=True)
+        
+        scores = list(map(float, scores))
+        scores = scores[:len(documents)]
 
         if top_k is not None:
-            results = results[:top_k]
+            scores = scores[:top_k]
 
-        return results
+        return scores
