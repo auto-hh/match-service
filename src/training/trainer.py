@@ -42,6 +42,7 @@ class Trainer:
             save_strategy="epoch",
             logging_steps=10,
             save_total_limit=1,
+            gradient_checkpointing=True,
         )
         
         trainer = SentenceTransformerTrainer(
