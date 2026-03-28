@@ -123,9 +123,9 @@ class Retriever:
             "job_title": data.get("job_title"),
             "city": data.get("city"),
             "salary": data.get("salary"),
-            "body": source.get("body", ""),
+            "body": data.get("body", ""),
             "link": data.get("link"),
-            "work_format": source.get("work_format", "")
+            "work_format": data.get("work_format", "")
         } for data in combined]
     
     def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:        
