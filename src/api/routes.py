@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends
-from schemas import Resume, MatchResult, Token, Vacancy, CoverLetterResult
+from schemas import Resume, MatchResult, Token, Vacancy, CoverLetterResult, VacancyMatch
 from core import Matcher, Explorer, LetterGenerator
 from service import get_letter_generator, get_explorer, get_matcher
 
