@@ -30,7 +30,7 @@ class Retriever:
         self.bm25 = store.get("bm25")
         self.bm25_weight = bm25_weight
     
-    def search(self, resume: Resume) -> List[Dict]:
+    def search(self, resume: Resume) -> List[Dict]:        
         query = format_resume(resume)
         if not query or not query.strip():
             return []
@@ -53,6 +53,14 @@ class Retriever:
             convert_to_numpy=True,
             normalize_embeddings=True
         )
+        
+        
+        import sys
+        print(f"[DEBUG] query_emb type: {type(query_emb)}", file=sys.stderr)
+        print(f"[DEBUG] query_emb shape: {query_emb.shape}", file=sys.stderr)
+        print(f"[DEBUG] query_emb ndim: {query_emb.ndim}", file=sys.stderr)
+        print(f"[DEBUG] FAISS index.d: {self.index.d}", file=sys.stderr)
+        sys.stderr.flush()
         
         distances, indices = self.index.search(query_emb, self.retrieval_top_k)
         
