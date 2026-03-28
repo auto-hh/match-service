@@ -1,5 +1,6 @@
+from typing import List
 from fastapi import APIRouter, Depends
-from schemas import Resume, MatchResult, ExplorationResult, Vacancy, CoverLetterResult
+from schemas import Resume, MatchResult, Token, Vacancy, CoverLetterResult
 from core import Matcher, Explorer, LetterGenerator
 from service import get_letter_generator, get_explorer, get_matcher
 
@@ -12,8 +13,8 @@ async def match(resume: Resume, matcher: Matcher = Depends(get_matcher)) -> Matc
     return result
 
 @router.post("/analyze")
-async def analyze_resume(resume: Resume, explorer: Explorer = Depends(get_explorer)) -> ExplorationResult:
-    return explorer.analyze(resume)
+async def analyze_resume(resume: Resume, explorer: Explorer = Depends(get_explorer)) -> List[Token]:
+    return explorer.analyze(resume).tokens
 
 @router.post("/generate")
 async def generate_cover_letter(resume: Resume, vacancy: Vacancy, letter_generator: LetterGenerator = Depends(get_letter_generator)) -> CoverLetterResult:
