@@ -7,10 +7,9 @@ from service import get_letter_generator, get_explorer, get_matcher
 router = APIRouter()
 
 @router.post("/search")
-async def match(resume: Resume, matcher: Matcher = Depends(get_matcher)) -> MatchResult:
+async def match(resume: Resume, matcher: Matcher = Depends(get_matcher)) -> List[VacancyMatch]:
     result = matcher.match(resume)
-    print(result)
-    return result
+    return result.matches
 
 @router.post("/analyze")
 async def analyze_resume(resume: Resume, explorer: Explorer = Depends(get_explorer)) -> List[Token]:
