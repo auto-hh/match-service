@@ -132,11 +132,7 @@ class Retriever:
         if not vacancies:
             return []
         
-        ce_scores = self.cross_encoder.get_scores(query, vacancies)
-        
-        print(ce_scores)
-        input()
-        
+        ce_scores = self.cross_encoder.get_scores(query, vacancies)        
         ce_scores = apply_softmax(ce_scores)
         
         for candidate, score in zip(candidates, ce_scores):

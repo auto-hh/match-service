@@ -38,7 +38,7 @@ def create_vector_store(model, input_path: str, output_path: str):
     else:
         np.save(str(output_path / "vacancy_ids.npy"), np.arange(len(df)))
     
-    meta_cols = [col for col in ['job_title', 'city', 'salary', 'body', 'link'] if col in df.columns]
+    meta_cols = [col for col in ['job_title', 'city', 'salary', 'body', 'work_format', 'link'] if col in df.columns]
     if meta_cols:
         metadata = df[meta_cols].to_dict('records')
         with open(output_path / "vacancy_meta.json", 'w', encoding='utf-8') as f:
