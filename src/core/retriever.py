@@ -112,6 +112,7 @@ class Retriever:
                 "city": source.get("city", ""),
                 "salary": source.get("salary", ""),
                 "body": source.get("body", ""),
+                "work_format": source.get("work_format", ""),
                 "link": link,
                 "score": score,
             })
@@ -124,6 +125,7 @@ class Retriever:
             "salary": data.get("salary"),
             "body": source.get("body", ""),
             "link": data.get("link"),
+            "work_format": source.get("work_format", "")
         } for data in combined]
     
     def _rerank(self, query: str, candidates: List[Dict]) -> List[Dict]:        
