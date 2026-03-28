@@ -7,13 +7,13 @@ class Resume(BaseModel):
     job_title: str = Field(default="", description="Желаемая должность")
     grade: str = Field(default="", description="Грейд: junior/middle/senior")
     work_format: str = Field(default="", description="Формат работы: офис/удалёнка/гибрид")
-    salary: str = Field(default="", description="Ожидаемая зарплата")
+    salary: int = Field(default="", description="Ожидаемая зарплата")
     city: str = Field(default="", description="Город")
     about_me: str = Field(default="", description="О себе")
     recent_jobs: str = Field(default="", description="Опыт работы")
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Resume':
+    def from_dict(cls, data: Dict) -> 'Resume':
         mapped = {
             "experience": data.get("experience", ""),
             "job_title": data.get("job_title"),

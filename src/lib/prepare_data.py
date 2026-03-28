@@ -45,8 +45,8 @@ def format_resume(r: Resume) -> str:
     if r.work_format and r.work_format.strip():
         parts.append(f"[FORMAT] {r.work_format.strip()}")
     
-    if r.salary and r.salary.strip():
-        parts.append(f"[SALARY] {r.salary.strip()}")
+    if r.salary:
+        parts.append(f"[SALARY] {r.salary} рублей")
     
     if r.recent_jobs and r.recent_jobs.strip():
         text = r.recent_jobs.strip()
