@@ -7,6 +7,7 @@ class Vacancy(BaseModel):
     city: str = Field(default="", description="Город")
     body: str = Field(default="", description="Описание вакансии")
     link: str = Field(default="", description="Ссылка на вакансию")
+    work_format: str = Field(default="", description="Формат работы: офис/удалёнка/гибрид")
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Vacancy':
